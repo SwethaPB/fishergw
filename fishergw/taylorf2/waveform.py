@@ -148,6 +148,10 @@ class TaylorF2():
             self.tidal = False
         self.eval = False
 
+    def ISCO(self,mode='static'):
+        if mode == 'static':
+            return cc/(self.M*6**1.5*np.pi)
+
     def __call__(self,f):
         if not self.eval:
             ## update eval
