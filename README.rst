@@ -4,8 +4,8 @@ A Python package to compute Fisher matrices for gravtational wave models
 
 Usage of taylorf2::
 -------------------
-    >>> from fishergw.taylorf2.waveform import CompactObject, TaylorF2
-    >>> from fishergw.taylorf2.fisher import Fisher
+    >>> from taylorf2.waveform import CompactObject, TaylorF2
+    >>> from taylorf2.fisher import Fisher
     >>>
     >>> m1, m2 = 1.46, 1.27
     >>> DL = 40
