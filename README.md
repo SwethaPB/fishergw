@@ -1,2 +1,2 @@
 # fishergw
-A Python module to compute Fisher matrices for gravtational wave models 
+A Python package to compute Fisher matrices for gravtational wave models 
