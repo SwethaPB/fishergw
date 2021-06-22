@@ -1,8 +1,9 @@
 fishergw
 --------
+A Python package to compute Fisher matrices for gravtational wave models
 
 Usage of taylorf2::
-
+-------------------
     >>> from fishergw.taylorf2.waveform import CompactObject, TaylorF2
     >>> from fishergw.taylorf2.fisher import Fisher
     >>>
