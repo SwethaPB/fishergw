@@ -23,7 +23,7 @@ The ``taylorf2.waveform.TaylorF2`` assumes that the normalization of Eq. (7.177)
 
 When ``taylorf2.fisher.Fisher`` calls a given PSD, it divides it by a factor of Q^2, so as to account for angle averaging.
 
-However, the conventions about Q change with the PSD, depending on: the design experiment (e.g., the number of arms in the detector and their relative orientation); whether the PSD has been preprocessed with some default angle average; and so on.
+However, the conventions about Q change with the PSD, depending on: the design experiment (e.g., the number of arms in the detector and their relative orientation); whether the PSD has been preprocessed with a transfer function; and so on.
 
 Here below we motivate our choices of Q.
 
@@ -32,10 +32,11 @@ aligo_psd
 etd_psd
   The factor Q=2/5 is multiplied by an additional sqrt(3/2) to account for the fact that ET is a 3-arms 60-degrees detector with two main channels. See Eq. (4) in [2]_.
 lisa_psd
-  The factor Q=2/sqrt(5) only accounts for the inclination angle. The PSD has been already divided in preprocessing by the average over the orientation angles. See **???**
+  The factor Q=2/sqrt(5) only accounts for the inclination angle. The PSD has been already divided in preprocessing by a transfer fucntion accounting for orientation averaging. See Eq.s (2),(8) and (9) in [3]_.
 ce_psd
   same as for *aligo_psd*.
 
 .. [1] Maggiore, Michele. Gravitational waves: Volume 1: Theory and experiments. Vol. 1. Oxford university press, 2008.
 .. [2] `1012.0908 <https://arxiv.org/abs/1012.0908>`_
+.. [3] `1803.01944 <https://arxiv.org/pdf/1803.01944.pdf>`_
 
