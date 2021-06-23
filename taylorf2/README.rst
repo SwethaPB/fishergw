@@ -18,10 +18,10 @@ Tidal terms at 5PN and 6PN in the phase
 .. [*] We included quadrupole corrections at 3PN, but we neglected quadrupole and octupole corrections at 3.5PN.
 
 Normalization conventions
-_________________________
-The `taylorf2.waveform.TaylorF2` assumes that the normalization of Eq. (7.177) in [1]_, without the angular factor Q.
+-------------------------
+The ``taylorf2.waveform.TaylorF2`` assumes that the normalization of Eq. (7.177) in [1]_, without the angular factor Q.
 
-When `taylorf2.fisher.Fisher` calls a given PSD, it divides it by a factor of Q^2, so as to account for angle averaging.
+When ``taylorf2.fisher.Fisher`` calls a given PSD, it divides it by a factor of Q^2, so as to account for angle averaging.
 
 However, the conventions about Q change with the PSD, depending on: the design experiment (e.g., number of arms in the detector and their orientation); whether the PSD has been preprocessed with some default angle average; and so on.
 
