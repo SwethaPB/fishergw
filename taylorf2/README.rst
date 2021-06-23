@@ -23,7 +23,7 @@ The ``taylorf2.waveform.TaylorF2`` assumes that the normalization of Eq. (7.177)
 
 When ``taylorf2.fisher.Fisher`` calls a given PSD, it divides it by a factor of Q^2, so as to account for angle averaging.
 
-However, the conventions about Q change with the PSD, depending on: the design experiment (e.g., number of arms in the detector and their orientation); whether the PSD has been preprocessed with some default angle average; and so on.
+However, the conventions about Q change with the PSD, depending on: the design experiment (e.g., the number of arms in the detector and their relative orientation); whether the PSD has been preprocessed with some default angle average; and so on.
 
 Here below we motivate our choices of Q.
 
