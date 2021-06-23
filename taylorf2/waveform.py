@@ -119,17 +119,21 @@ def phase_coefficients():
 
 class TaylorF2():
 
-    def __init__(self,obj1,obj2,DL=100,tc=0,phic=0):
+    def __init__(self,obj1,obj2,DL=100,tc=0,phic=0,redshift=False):
+        if redshift:
+            self.redshift = redshift_from_distance(DL)
+        else:
+            self.redshift = 1.
         self.keys = ['t_c','phi_c','M_c','eta','chi_s','chi_a']
         self.__dict__['t_c'] = tc
         self.__dict__['phi_c'] = phic
         self.__dict__['D_L'] = DL*Mpc
-        self.__dict__['M'] = (obj1.mass + obj2.mass)*rsun
+        self.__dict__['M'] = (obj1.mass + obj2.mass)*rsun*self.redshift
         self.__dict__['kappa_s'] = 0.5*(obj1.kappa + obj2.kappa)
         self.__dict__['kappa_a'] = 0.5*(obj1.kappa - obj2.kappa)
         self.__dict__['eta'] = obj1.mass*obj2.mass/(obj1.mass + obj2.mass)**2
         #self.__dict__['mu'] = self.__dict__['eta']*self.__dict__['M']
-        self.__dict__['M_c'] = self.__dict__['M']*self.__dict__['eta']**0.6
+        self.__dict__['M_c'] = self.__dict__['M']*self.__dict__['eta']**0.6*self.redshift
         #self.__dict__['delta'] = (obj1.mass - obj2.mass)/(obj1.mass + obj2.mass)
         self.__dict__['q'] = obj1.mass / obj2.mass
         self.__dict__['chi_s'] = 0.5*(obj1.spin +  obj2.spin)
