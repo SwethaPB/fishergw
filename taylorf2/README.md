@@ -1,3 +1,6 @@
+TaylorF2 bibliography
+---------------------
+
 The `TaylorF2` template in this module restricts to the (l=2,m=2) harmonic. 
 
 The expressions for the amplitude and phase of the waveform are extracted from the following papers (_note_: we do not claim that these paper were necessarily the first to present the corresponding expressions; we just refer to them for simplicity):
