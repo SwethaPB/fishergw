@@ -37,5 +37,5 @@ ce_psd
   same as for *aligo_psd*.
 
 .. [1] Maggiore, Michele. Gravitational waves: Volume 1: Theory and experiments. Vol. 1. Oxford university press, 2008.
-.. [2] `1012.0908 <https://arxiv.org/abs/1012.0908>`
+.. [2] `1012.0908 <https://arxiv.org/abs/1012.0908>`_
 
