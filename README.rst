@@ -23,3 +23,10 @@ Usage of taylorf2::
     >>> fisher.FisherMatrix(fmin,fmax,nbins=int(1e4),keys=keys)
     >>> fisher.CovarianceMatrix()
     >>> sigma = fisher.sigma
+
+Usage of cosmology::
+--------------------
+
+    >>> from cosmology.redshift import redshift_from_distance, distance_from_redshift
+    >>> z = redshift_from_distance(100)
+    >>> d = distance_from_redshift(z)
