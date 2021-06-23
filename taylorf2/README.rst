@@ -16,3 +16,26 @@ Tidal terms at 5PN and 6PN in the phase
 
 .. [*] These papers were not necessarily the first to present the corresponding expressions. We just refer to them for simplicity.
 .. [*] We included quadrupole corrections at 3PN, but we neglected quadrupole and octupole corrections at 3.5PN.
+
+Normalization conventions
+_________________________
+The `taylorf2.waveform.TaylorF2` assumes that the normalization of Eq. (7.177) in [1]_, without the angular factor Q.
+
+When `taylorf2.fisher.Fisher` calls a given PSD, it divides it by a factor of Q^2, so as to account for angle averaging.
+
+However, the conventions about Q change with the PSD, depending on: the design experiment (e.g., number of arms in the detector and their orientation); whether the PSD has been preprocessed with some default angle average; and so on.
+
+Here below we motivate our choices of Q.
+
+aligo_psd
+  The standard factor Q=2/5 for a 2-arms 90-degrees detectors is assumed. See Eq. (7.180) in [1]_.
+etd_psd
+  The factor Q=2/5 is multiplied by an additional sqrt(3/2) to account for the fact that ET is a 3-arms 60-degrees detector with two main channels. See Eq. (4) in [2]_.
+lisa_psd
+  The factor Q=2/sqrt(5) only accounts for the inclination angle. The PSD has been already divided in preprocessing by the average over the orientation angles. See **???**
+ce_psd
+  same as for *aligo_psd*.
+
+.. [1] Maggiore, Michele. Gravitational waves: Volume 1: Theory and experiments. Vol. 1. Oxford university press, 2008.
+.. [2] `1012.0908 <https://arxiv.org/abs/1012.0908>`
+

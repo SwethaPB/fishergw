@@ -13,18 +13,16 @@ detectors = {'aLigo':(dir_path+'/../detector/aligo_psd.dat',2/5),\
 
 class Fisher():
     def __init__(self,signal,integration_method=simps,\
-            psd=None,detector=None,norm=1.):
+            psd=None,detector=None):
         self.signal = signal
         self.integration_method = simps
         if detector:
-            psd, self.norm = detectors[detector]
-            self.load_psd(psd)
+            psd, norm = detectors[detector]
+            self.load_psd(psd,norm)
         elif psd:
             self.load_psd(psd)
-            self.norm = norm
         else:
             self.psd = lambda x: 1
-            self.norm = norm
         
     def SNR(self,fmin=None,fmax=None,nbins=1e5):
         if not fmin:
@@ -34,13 +32,13 @@ class Fisher():
         x = np.linspace(fmin,fmax,int(nbins))
         y = 4*np.abs(self.signal(x))**2/self.psd(x)
         out = self.integration_method(y,x)
-        return np.sqrt(out)*self.norm
+        return np.sqrt(out)
     
-    def load_psd(self,psd_name):
+    def load_psd(self,psd_name,norm=1):
         s = np.genfromtxt(psd_name).T
         self.fmin = s[0].min()
         self.fmax = s[0].max()
-        self.psd = interp1d(s[0],s[1])
+        self.psd = interp1d(s[0],s[1]/norm**2)
         return None
     
     def FisherMatrix(self,fmin=None,fmax=None,nbins=1e5,keys=None):
@@ -62,7 +60,6 @@ class Fisher():
                 y = 4*np.real(derivatives[i](f)*np.conj(derivatives[j](f)))/self.psd(f)
                 self.fm[i,j] = self.integration_method(y,f)
                 self.fm[j,i] = self.fm[i,j]
-        self.fm *= self.norm**2
         return None
     
     def CovarianceMatrix(self):

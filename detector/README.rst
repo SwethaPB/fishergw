@@ -1,6 +1,5 @@
 Sources for the power spectral densities
 ----------------------------------------
-
 aligo_psd
   `LIGO Document T1800044-v5 <https://dcc.ligo.org/LIGO-T1800044/public>`_
 etd_psd
