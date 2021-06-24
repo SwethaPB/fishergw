@@ -3,6 +3,11 @@ import sympy as sp
 from sympy import Rational
 from copy import deepcopy
 
+import sys
+sys.path.append('..')
+
+from cosmology.redshift import redshift_from_distance
+
 ## define physical units
 cc = 299792458 ## m/s (exact by decree)
 msun = 1.98855e+30 #Kg
@@ -123,17 +128,17 @@ class TaylorF2():
         if redshift:
             self.redshift = redshift_from_distance(DL)
         else:
-            self.redshift = 1.
+            self.redshift = 0.
         self.keys = ['t_c','phi_c','M_c','eta','chi_s','chi_a']
         self.__dict__['t_c'] = tc
         self.__dict__['phi_c'] = phic
         self.__dict__['D_L'] = DL*Mpc
-        self.__dict__['M'] = (obj1.mass + obj2.mass)*rsun*self.redshift
+        self.__dict__['M'] = (obj1.mass + obj2.mass)*rsun*(1+self.redshift)
         self.__dict__['kappa_s'] = 0.5*(obj1.kappa + obj2.kappa)
         self.__dict__['kappa_a'] = 0.5*(obj1.kappa - obj2.kappa)
         self.__dict__['eta'] = obj1.mass*obj2.mass/(obj1.mass + obj2.mass)**2
         #self.__dict__['mu'] = self.__dict__['eta']*self.__dict__['M']
-        self.__dict__['M_c'] = self.__dict__['M']*self.__dict__['eta']**0.6*self.redshift
+        self.__dict__['M_c'] = self.__dict__['M']*self.__dict__['eta']**0.6*(1+self.redshift)
         #self.__dict__['delta'] = (obj1.mass - obj2.mass)/(obj1.mass + obj2.mass)
         self.__dict__['q'] = obj1.mass / obj2.mass
         self.__dict__['chi_s'] = 0.5*(obj1.spin +  obj2.spin)

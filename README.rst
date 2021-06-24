@@ -12,7 +12,7 @@ Usage of taylorf2::
     >>> s1, s2 = 0., 0.
     >>> obj1 = CompactObject(m1,s1,Lamda=199)
     >>> obj2 = CompactObject(m2,s2,Lamda=474)
-    >>> signal = TaylorF2(obj1,obj2,DL=DL)
+    >>> signal = TaylorF2(obj1,obj2,DL=DL,redshift=True)
     >>>
     >>> fisher = Fisher(signal,detector='ET')
     >>> fmin = 5
