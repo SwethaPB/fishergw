@@ -161,6 +161,13 @@ class TaylorF2():
         if mode == 'static':
             return cc/(self.M*6**1.5*np.pi)
 
+    def frequency_from_obs_time(self,obs_time=1):
+        ## return minimum frequency from observational time
+        ## as per eq. (2.15) in
+        ## https://arxiv.org/abs/gr-qc/0411129v2
+        fmin = 4.149e-5*(obs_time)**(-3/8)*(self.M_c*1e-6)**(-5/8)
+        return fmin
+
     def __call__(self,f):
         if not self.eval:
             ## update eval
