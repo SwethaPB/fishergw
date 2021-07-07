@@ -1,3 +1,9 @@
+## useful links to create a package
+## https://python-packaging.readthedocs.io/en/latest/minimal.html#publishing-on-pypi
+## https://docs.python-guide.org/writing/structure/#setup-py
+## https://docutils.sourceforge.io/docs/user/rst/quickref.html
+## https://medium.com/@udiyosovzon/things-you-should-know-when-developing-python-package-5fefc1ea3606
+
 from setuptools import setup, find_packages
 
 def readme():
