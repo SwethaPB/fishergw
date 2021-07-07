@@ -4,7 +4,12 @@ from sympy import Rational
 from copy import deepcopy
 
 import sys
-sys.path.append('..')
+from os.path import realpath, dirname
+
+full_path = realpath(__file__)
+dir_path = dirname(full_path)
+
+sys.path.append(dir_path+'/..')
 
 from cosmology.redshift import redshift_from_distance
 

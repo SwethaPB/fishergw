@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def readme():
     with open('README.rst') as f:
@@ -12,7 +12,7 @@ setup(name='fishergw',
       author='Costantino Pacilio',
       author_email='costantinopacilio1990@gmail.com',
       license='MIT',
-      packages=['fishergw'],
+      packages=find_packages(),
       install_requires=[
           'sympy',
           'scipy',
