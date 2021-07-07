@@ -6,7 +6,11 @@ How to install::
 ----------------
 Install from folder
     
-   $pip install . 
+   $pip install .
+
+Install from pip
+
+   $pip install fishergw
 
 Usage of taylorf2::
 -------------------
