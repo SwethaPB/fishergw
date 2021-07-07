@@ -4,8 +4,8 @@ A Python package to compute Fisher matrices for gravtational wave models
 
 Usage of taylorf2::
 -------------------
-    >>> from taylorf2.waveform import CompactObject, TaylorF2
-    >>> from taylorf2.fisher import Fisher
+    >>> from fishergw.taylorf2.waveform import CompactObject, TaylorF2
+    >>> from fishergw.taylorf2.fisher import Fisher
     >>>
     >>> m1, m2 = 1.46, 1.27
     >>> DL = 40
@@ -27,6 +27,6 @@ Usage of taylorf2::
 Usage of cosmology::
 --------------------
 
-    >>> from cosmology.redshift import redshift_from_distance, distance_from_redshift
+    >>> from fishergw.cosmology.redshift import redshift_from_distance, distance_from_redshift
     >>> z = redshift_from_distance(100)
     >>> d = distance_from_redshift(z)
