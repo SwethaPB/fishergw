@@ -32,7 +32,7 @@ aligo_psd
 etd_psd
   The factor Q=2/5 is multiplied by an additional sqrt(3/2) to account for the fact that ET is a 3-arms 60-degrees detector with two main channels. See Eq. (4) in [2]_.
 lisa_psd
-  The factor Q=2/sqrt(5) only accounts for the inclination angle. The PSD has been already divided in preprocessing by a transfer fucntion accounting for orientation averaging. See Eq.s (2), (8-9) in [3]_.
+  The factor Q=2/sqrt(5) only accounts for the inclination angle. The PSD has been already preprocessed with a transfer function, thus accounting for orientation averaging. See Eq.s (2), (8-9) in [3]_.
 ce_psd
   same as for *aligo_psd*.
 
