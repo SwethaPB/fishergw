@@ -1,6 +1,6 @@
 include README.rst
-include taylorf2/README.rst
-include detector/*psd.dat
-include detector/README.rst
-include cosmology/README.rst
-include cosmology/redshift_distance_table.dat
+include fishergw/taylorf2/README.rst
+include fishergw/detector/*psd.dat
+include fishergw/detector/README.rst
+include fishergw/cosmology/README.rst
+include fishergw/cosmology/redshift_distance_table.dat
