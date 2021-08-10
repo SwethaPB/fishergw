@@ -6,19 +6,20 @@ from copy import deepcopy
 import sys
 from os.path import realpath, dirname
 
-full_path = realpath(__file__)
-dir_path = dirname(full_path)
+#full_path = realpath(__file__)
+#dir_path = dirname(full_path)
 
-sys.path.append(dir_path+'/..')
+#sys.path.append(dir_path+'/..')
 
-from cosmology.redshift import redshift_from_distance
+from ..cosmology.redshift import redshift_from_distance
+from ..constants import cc, msun, G, rsun, Mpc
 
 ## define physical units
-cc = 299792458 ## m/s (exact by decree)
-msun = 1.98855e+30 #Kg
-G = 6.67430e-11 ## m^3/kg/s from <https://physics.nist.gov/cuu/Constants/index.html> 
-rsun = msun*G/cc**2 ## m
-Mpc = 3.1e22 ## m
+#cc = 299792458 ## m/s (exact by decree)
+#msun = 1.98855e+30 #Kg
+#G = 6.67430e-11 ## m^3/kg/s from <https://physics.nist.gov/cuu/Constants/index.html> 
+#rsun = msun*G/cc**2 ## m
+#Mpc = 3.1e22 ## m
 
 ## define symbols
 eta, delta, M, c = sp.symbols('eta, delta, M, c')
