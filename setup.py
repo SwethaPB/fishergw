@@ -2,7 +2,8 @@
 ## https://python-packaging.readthedocs.io/en/latest/minimal.html#publishing-on-pypi
 ## https://docs.python-guide.org/writing/structure/#setup-py
 ## https://docutils.sourceforge.io/docs/user/rst/quickref.html
-## https://medium.com/@udiyosovzon/things-you-should-know-when-developing-python-package-5fefc1ea3606## https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56
+## https://medium.com/@udiyosovzon/things-you-should-know-when-developing-python-package-5fefc1ea3606
+## https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56
 
 from setuptools import setup, find_packages
 

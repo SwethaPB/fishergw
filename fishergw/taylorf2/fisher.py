@@ -6,18 +6,19 @@ from os.path import realpath, dirname
 full_path = realpath(__file__)
 dir_path = dirname(full_path)
 
-detectors = {'aLigo':(dir_path+'/../detector/aligo_psd.dat',2/5),\
-             'CE':(dir_path+'/../detector/ce_psd.dat',2/5),\
-             'ET':(dir_path+'/../detector/etd_psd.dat',2/5*np.sqrt(3/2)),\
-             'lisa':(dir_path+'/../detector/lisa_psd.dat',2/5*np.sqrt(5))}
-
 class Fisher():
+
+    detectors = {'aLigo':(dir_path+'/../detector/aligo_psd.dat',2/5),\
+                 'CE':(dir_path+'/../detector/ce_psd.dat',2/5),\
+                 'ET':(dir_path+'/../detector/etd_psd.dat',2/5*np.sqrt(3/2)),\
+                 'lisa':(dir_path+'/../detector/lisa_psd.dat',2/5*np.sqrt(5))}
+    
     def __init__(self,signal,integration_method=simps,\
             psd=None,detector=None):
         self.signal = signal
         self.integration_method = simps
         if detector:
-            psd, norm = detectors[detector]
+            psd, norm = self.detectors[detector]
             self.load_psd(psd,norm)
         elif psd:
             self.load_psd(psd)
