@@ -1,6 +1,6 @@
 ## useful links to create a package
-## https://python-packaging.readthedocs.io/en/latest/minimal.html#publishing-on-pypi
-## https://docs.python-guide.org/writing/structure/#setup-py
+## https://python-packaging.readthedocs.io/en/latest/minimal.html
+## https://docs.python-guide.org/writing/structure
 ## https://docutils.sourceforge.io/docs/user/rst/quickref.html
 ## https://medium.com/@udiyosovzon/things-you-should-know-when-developing-python-package-5fefc1ea3606
 ## https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56
