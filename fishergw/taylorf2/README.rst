@@ -1,5 +1,5 @@
-TaylorF2 bibliography
----------------------
+References
+----------
 
 The ``TaylorF2`` template in this module restricts to the (l=2,m=2) harmonic. 
 

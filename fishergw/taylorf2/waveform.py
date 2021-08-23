@@ -57,7 +57,16 @@ class CompactObject():
 
 
 def amplitude_coefficients():
-    '''v= (pi*M*f/cc)**(1/3)'''
+    """
+    Returns the amplitude coefficients of the TaylorF2 template.
+    Coefficients are expanded in powers of v=(pi*M*f/c)**(1/3) and normalized to 1 for v=0.
+    Includes terms up to 3PN order (see Eq.s(B14-B20) in https://arxiv.org/abs/1508.07253).
+
+    Returns
+    -------
+    out : list
+        list of sympy symbolic expressions of the PN coefficients.
+    """
     ## numerical factors
     pi = sp.pi
     ## spin corrections
@@ -86,7 +95,20 @@ def amplitude_coefficients():
 
 
 def phase_coefficients():
-    '''v= (pi*M*f/cc)**(1/3)'''
+    """
+    Returns the phase coefficients of the TaylorF2 template.
+    Coefficients are expanded in powers of v=(pi*M*f/c)**(1/3) and normalized to 1 for v=0.
+    Includes point-particle and spin-induced terms up to 3.5PN order (see Eq.s(B6-B13) in https://arxiv.org/abs/1508.07253 and Eq.s(0.5a-c) in https://arxiv.org/abs/1701.06318).
+
+    Returns
+    -------
+    out : list
+        list of sympy symbolic expressions of the PN coefficients.
+
+    Notes
+    -----
+    The 3.5PN spin-induced term neglects the quadrupole and octupole moment corrections from Eq.(0.5c) in https://arxiv.org/pdf/1701.06318.pdf. Quadrupole corrections are instead included in the 2PN and 3PN terms, as per Eq.s(0.5a-b). 
+    """
     ## numerical factors
     pi = sp.pi
     gE = sp.EulerGamma
