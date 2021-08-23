@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.integrate import simps
 from scipy.optimize import root_scalar
-from os.path import realpath, dirname
 
 from ..constants import speed_of_light, omega_matter, omega_lamda, H0
 cc = speed_of_light*1e-3 # Km/s
