@@ -1,8 +1,8 @@
-fishergw
+About::
 --------
 A Python package to compute Fisher matrices for gravtational wave models
 
-How to install::
+Installation::
 ----------------
 Install from folder
     
@@ -37,6 +37,6 @@ Usage of taylorf2::
 Usage of cosmology::
 --------------------
 
-    >>> from fishergw.cosmology.redshift import redshift_from_distance, distance_from_redshift
+    >>> from fishergw.cosmology import redshift_from_distance, distance_from_redshift
     >>> z = redshift_from_distance(100)
     >>> d = distance_from_redshift(z)

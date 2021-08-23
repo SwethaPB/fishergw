@@ -11,15 +11,13 @@ from os.path import realpath, dirname
 
 #sys.path.append(dir_path+'/..')
 
-from ..cosmology.redshift import redshift_from_distance
-from ..constants import cc, msun, G, rsun, Mpc
+from ..cosmology.redshift_distance import redshift_from_distance
+from ..constants import speed_of_light, solar_mass, G, Mpc
 
-## define physical units
-#cc = 299792458 ## m/s (exact by decree)
-#msun = 1.98855e+30 #Kg
-#G = 6.67430e-11 ## m^3/kg/s from <https://physics.nist.gov/cuu/Constants/index.html> 
-#rsun = msun*G/cc**2 ## m
-#Mpc = 3.1e22 ## m
+cc = speed_of_light
+msun = solar_mass
+## Schwarzschild radius of the Sun
+rsun = msun*G/cc**2 ## m
 
 ## define symbols
 eta, delta, M, c = sp.symbols('eta, delta, M, c')
