@@ -3,14 +3,6 @@ import sympy as sp
 from sympy import Rational
 from copy import deepcopy
 
-import sys
-from os.path import realpath, dirname
-
-#full_path = realpath(__file__)
-#dir_path = dirname(full_path)
-
-#sys.path.append(dir_path+'/..')
-
 from ..cosmology.redshift_distance import redshift_from_distance
 from ..constants import speed_of_light, solar_mass, G, Mpc
 
@@ -19,7 +11,7 @@ msun = solar_mass
 ## Schwarzschild radius of the Sun
 rsun = msun*G/cc**2 ## m
 
-## define symbols
+## define sympy symbols
 eta, delta, M, c = sp.symbols('eta, delta, M, c')
 chi_s, chi_a, kappa_s, kappa_a, Lamda_T, delta_Lamda =\
  sp.symbols('chi_s, chi_a, kappa_s, kappa_a, Lamda_T, delta_Lamda')
@@ -27,11 +19,37 @@ v, f = sp.symbols('v, f')
 tc, phic, DL = sp.symbols('t_c, phi_c, d_L')
 
 class CompactObject():
-    '''
-    mass: in units of Msun
-    spin: dimensionless
-    '''
-    def __init__(self, mass, spin, Lamda=0.):
+    """
+    A class to define an isolated compact object.
+
+    Attributes
+    ----------
+    mass : float
+        Mass (in units of salr masses).
+    spin : float
+        Dimensionless spin.
+    Lamda : float
+        Tidal deformability.
+    kappa : float
+        Dimensionless quadrupole deformability.
+
+    Notes
+    -----
+    This class is under development. Lamda can only be specified by hand and kappa is fixed to the black hole value.
+    To do list:
+    -- support equations of state for neutron stars.
+    """
+    def __init__(self, mass, spin, Lamda=0.0):
+        """
+        Parameters
+        ----------
+        mass : float
+            Mass (in units of salr masses).
+        spin : float
+            Dimensionless spin.
+        Lamda : float, default=0.0
+            Tidal deformability.
+        """
         self.mass = mass
         self.spin = spin
         self.kappa = 1.
@@ -128,11 +146,11 @@ def phase_coefficients():
 
 class TaylorF2():
     """
-    TaylorF2 template for the inspiral waveform from a binary coalescence.
+    TaylorF2 frequency-domain template for the inspiral waveform from a binary coalescence.
 
     Attributes
     ----------
-    dL : float, default=100.0
+    d_L : float, default=100.0
         Luminosity distance in units of Mpc.
 
     tc : float, default=0.0
@@ -171,29 +189,29 @@ class TaylorF2():
     delta_Lambda : float
         Auxiliary tidal parameter, according to Eq.(15) in https://arxiv.org/abs/1410.8866.
     
-    tidal : bool
-        ``True`` if Lambda_T is not zero, ``False`` otherwise.
-
     keys : list of str, default=['t_c','phi_c','M_c','eta','chi_s','chi_a']
-        Independent variables w.r.t. which the Fisher matrix is evaluated. If tidal=True, ['Lamda_T','delta_Lamda'] are added to keys.
+        Independent variables w.r.t. which the Fisher matrix is evaluated. If Lambda_T is not zero, ['Lamda_T','delta_Lamda'] are added to keys.
 
     Notes
     -----
     Because the TaylorF2 phase is linear in t_c and phi_c, the actual values of t_c and phi_c are irrelevant to the computation of the Fisher matrix and can be left to their default.
 
+    TaylorF2 assumes that the normalization of Eq.(7.177) in [1], without the angular factor Q.
+    
+    [1] Maggiore, Michele. Gravitational waves: Volume 1: Theory and experiments. Vol. 1. Oxford university press, 2008.
     """
 
     def __init__(self,obj1,obj2,d_L=100.0,t_c=0.0,phi_c=0.0,redshift=False):
         """
         Parameters
         ----------
-        obj1 : CompactObject
+        obj1 : CompactObject instance
             Primary compact object in the binary.
 
-        obj2 : CompactObject
+        obj2 : CompactObject instance
             Secondary compact object in the binary.
 
-        dL : float, default=100.0
+        d_L : float, default=100.0
             Luminosity distance in units of Mpc.
 
         tc : float, default=0.0
@@ -231,20 +249,51 @@ class TaylorF2():
                 (-919+3179*(1+self.__dict__['q'])-2286/(1+self.__dict__['q'])+\
                 260/(1+self.__dict__['q'])**2)*(obj2.mass**5)*obj2.Lamda )/(obj1.mass+obj2.mass)**5
         if self.__dict__['Lamda_T']:
-            self.tidal = True
+            self._tidal_ = True
             self.keys += ['Lamda_T','delta_Lamda']
         else:
-            self.tidal = False
-        self.eval = False
+            self._tidal_ = False
+        self._eval_ = False
 
-    def ISCO(self,mode='static'):
+    def isco(self,mode='static'):
+        """
+        Compute the ISCO frequency of the system. It is the recommended maximum frequency when computing the SNR and the Fisher matrix.
+
+        Parameters
+        ----------
+        mode : str, default='static'
+            If ``static``, neglects the contribution of the indivudal spins.
+
+        Returns
+        -------
+        fmax : float
+            The ISCO frequency.
+
+        Notes
+        -----
+        This method is under development. The only supported option so far is the ISCO frequency of a lack hole binary.
+        To do list:
+        -- add a ``spinning`` mode to compute the ISCO frequency without neglecting the spins;
+        -- implement the contact frequency in case one or both compact objects have a tidally deformable surface.
+        """
         if mode == 'static':
-            return cc/(self.M*6**1.5*np.pi)
+            fmax = cc/(self.M*6**1.5*np.pi)
+        return fmax
 
-    def frequency_from_obs_time(self,obs_time=1):
-        ## return minimum frequency from observational time
-        ## as per eq. (2.15) in
-        ## https://arxiv.org/abs/gr-qc/0411129v2
+    def start_frequency_from_obs_time(self,obs_time=1.0):
+        """
+        Returns the starting frequency given the osbervational time, as per Eq.(2.15) in https://arxiv.org/abs/gr-qc/0411129v2.
+        
+        Parameters
+        ----------
+        obs_time : float, default=1
+            The observational time (in units of yr).
+
+        Returns
+        -------
+        fmin : float
+            The starting frequency.
+        """
         fmin = 4.149e-5*(obs_time)**(-3/8)*(self.M_c*1e-6)**(-5/8)
         return fmin
 
@@ -262,9 +311,9 @@ class TaylorF2():
         strain : complex
             Value of the strain at f.
         """
-        if not self.eval:
+        if not self._eval_:
             ## update eval
-            self.eval = False
+            self._eval_ = True
             params = {k:self.__dict__[k] for k in self.keys}
             ## phase
             self.phase_eval = self._phase_().subs(params)
@@ -287,8 +336,8 @@ class TaylorF2():
         
         Returns
         -------
-        Nabla : dict{str: lambda function}
-            Dictionary {argument: derivative w.r.t. argument}.
+        Nabla : dict
+            Argument names mapped to their derivative estimators.
         
         """
         Nabla = {}
@@ -310,7 +359,7 @@ class TaylorF2():
         Returns
         -------
         out : lambda function
-            Function returning the differential at a given frequency.
+            Estimator the differential.
 
         Notes
         -----
@@ -330,7 +379,7 @@ class TaylorF2():
 
     def _amplitude_(self,PN=0):
         """
-        Returns a symbolic expression for the amplitude in terms of the independent varialbles in self.keys.
+        Returns a sympy expression for the amplitude in terms of the independent varialbles in self.keys.
         The amplitude is truncated at the specified PN order. 
         """
         cfs = amplitude_coefficients()
@@ -353,7 +402,7 @@ class TaylorF2():
 
     def _phase_(self,PN=3.5):
         """
-        Return a symbolic expression for the phase in term of the independent variables in self.keys.
+        Returns a sympy expression for the phase in term of the independent variables in self.keys.
         The phase is truncated at the specified PN order.
         If self.tidal=True, tidal terms at 5PN and 6PN are also added.
         """
@@ -363,11 +412,11 @@ class TaylorF2():
         for i in range(int(2*PN)+1):
             out += cfs[i]*v**i
         ## add tidal terms
-        if self.tidal == True:
+        if self._tidal_ == True:
             out += -Rational(39,2)*Lamda_T*v**10 -Rational(3115,64)*Lamda_T*v**12 + Rational(6595,364)*delta*delta_Lamda*v**12
         ## add normalization
         out *= 3/(128*eta*v**5)
-        ## add constant phase terms
+        ## add constant and linear terms in the phase
         out += -sp.pi/4 + 2*c*tc/M*v**3 - phic
         out = out.subs('v', '(pi*M*f/c)**Rational(1,3)')
         ## change variables

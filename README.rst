@@ -24,15 +24,14 @@ Usage of taylorf2::
     >>> obj2 = CompactObject(m2,s2,Lamda=474)
     >>> signal = TaylorF2(obj1,obj2,DL=DL,redshift=True)
     >>>
-    >>> fisher = Fisher(signal,detector='ET')
-    >>> fmin = 5
-    >>> fmax = signal.ISCO(mode='static')
-    >>>
-    >>> snr = fisher.SNR(fmin,fmax,nbins=int(1e4))
     >>> keys=['t_c','phi_c','M_c','eta','Lamda','Lamda_2']
-    >>> fisher.FisherMatrix(fmin,fmax,nbins=int(1e4),keys=keys)
-    >>> fisher.CovarianceMatrix()
-    >>> sigma = fisher.sigma
+    >>> fisher = Fisher(signal,detector='ET',keys=keys)
+    >>> fmin = 5
+    >>> fmax = signal.isco(mode='static')
+    >>>
+    >>> snr = fisher.snr(fmin,fmax,nbins=int(1e4))
+    >>> fm = fisher.fisher_matrix(fmin,fmax,nbins=int(1e4))
+    >>> cov, sigma = fisher.covariance_matrix(fm)
 
 Usage of cosmology::
 --------------------
