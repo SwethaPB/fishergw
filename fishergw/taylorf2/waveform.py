@@ -21,10 +21,10 @@ rsun = msun*G/cc**2 ## m
 
 ## define symbols
 eta, delta, M, c = sp.symbols('eta, delta, M, c')
-chi_s, chi_a, kappa_s, kappa_a, Lamda, Lamda2 =\
- sp.symbols('chi_s, chi_a, kappa_s, kappa_a, Lamda, Lamda_2')
+chi_s, chi_a, kappa_s, kappa_a, Lamda_T, delta_Lamda =\
+ sp.symbols('chi_s, chi_a, kappa_s, kappa_a, Lamda_T, delta_Lamda')
 v, f = sp.symbols('v, f')
-tc, phic, DL = sp.symbols('t_c, phi_c, D_L')
+tc, phic, DL = sp.symbols('t_c, phi_c, d_L')
 
 class CompactObject():
     '''
@@ -127,16 +127,92 @@ def phase_coefficients():
 
 
 class TaylorF2():
+    """
+    TaylorF2 template for the inspiral waveform from a binary coalescence.
 
-    def __init__(self,obj1,obj2,DL=100,tc=0,phic=0,redshift=False):
+    Attributes
+    ----------
+    dL : float, default=100.0
+        Luminosity distance in units of Mpc.
+
+    tc : float, default=0.0
+        Time of coalescence.
+
+    phic : float, default=0.0
+        Phase of coalescence.
+
+    M : float
+        Total mass in the detector frame, in units of m.
+    
+    kappa_s : float
+        Symmetrized quadrupole moment.
+    
+    kappa_a : float
+        Antisymmetrized quadrupole moment.
+    
+    eta : float
+        Symmetric mass ratio.
+    
+    M_c : float
+        Chirp mass in the detector frame, in units of m.
+    
+    q : float
+        Mass ratio obj1.mass/obj2.mass.
+    
+    chi_s : float
+        Symmetrized dimensionless spin.
+    
+    chi_a : float
+        Antisymmetrized dimensionless spin.
+    
+    Lamda_T : float
+        Tidal deformability of the binary, according to Eq.(14) in https://arxiv.org/abs/1410.8866.
+
+    delta_Lambda : float
+        Auxiliary tidal parameter, according to Eq.(15) in https://arxiv.org/abs/1410.8866.
+    
+    tidal : bool
+        ``True`` if Lambda_T is not zero, ``False`` otherwise.
+
+    keys : list of str, default=['t_c','phi_c','M_c','eta','chi_s','chi_a']
+        Independent variables w.r.t. which the Fisher matrix is evaluated. If tidal=True, ['Lamda_T','delta_Lamda'] are added to keys.
+
+    Notes
+    -----
+    Because the TaylorF2 phase is linear in t_c and phi_c, the actual values of t_c and phi_c are irrelevant to the computation of the Fisher matrix and can be left to their default.
+
+    """
+
+    def __init__(self,obj1,obj2,d_L=100.0,t_c=0.0,phi_c=0.0,redshift=False):
+        """
+        Parameters
+        ----------
+        obj1 : CompactObject
+            Primary compact object in the binary.
+
+        obj2 : CompactObject
+            Secondary compact object in the binary.
+
+        dL : float, default=100.0
+            Luminosity distance in units of Mpc.
+
+        tc : float, default=0.0
+            Time of coalescence.
+
+        phic : float, default=0.0
+            Phase of coalescence.
+
+        redshift : bool, default=False
+            If ``True``, the masses are redshifted, otherwise the redshift is neglected.
+        """
         if redshift:
-            self.redshift = redshift_from_distance(DL)
+            self.redshift = redshift_from_distance(d_L)
         else:
-            self.redshift = 0.
+            self.redshift = 0.0
         self.keys = ['t_c','phi_c','M_c','eta','chi_s','chi_a']
-        self.__dict__['t_c'] = tc
-        self.__dict__['phi_c'] = phic
-        self.__dict__['D_L'] = DL*Mpc
+        self.__dict__['t_c'] = t_c
+        self.__dict__['phi_c'] = phi_c
+        self.__dict__['d_L'] = d_L*Mpc
         self.__dict__['M'] = (obj1.mass + obj2.mass)*rsun*(1+self.redshift)
         self.__dict__['kappa_s'] = 0.5*(obj1.kappa + obj2.kappa)
         self.__dict__['kappa_a'] = 0.5*(obj1.kappa - obj2.kappa)
@@ -147,16 +223,16 @@ class TaylorF2():
         self.__dict__['q'] = obj1.mass / obj2.mass
         self.__dict__['chi_s'] = 0.5*(obj1.spin +  obj2.spin)
         self.__dict__['chi_a'] = 0.5*(obj1.spin - obj2.spin)
-        self.__dict__['Lamda'] = 16/13*((1+12/self.__dict__['q'])*(obj1.mass**5)*obj1.Lamda +\
+        self.__dict__['Lamda_T'] = 16/13*((1+12/self.__dict__['q'])*(obj1.mass**5)*obj1.Lamda +\
                 (1+12*self.__dict__['q'])*(obj2.mass**5)*obj2.Lamda)/(obj1.mass+obj2.mass)**5
-        self.__dict__['Lamda_2'] = 16/4361*( (-919+3179*(1+self.__dict__['q'])/self.__dict__['q']-\
+        self.__dict__['delta_Lamda'] = 16/4361*( (-919+3179*(1+self.__dict__['q'])/self.__dict__['q']-\
                 2286*self.__dict__['q']/(1+self.__dict__['q'])+\
                 260*(self.__dict__['q']/(1+self.__dict__['q']))**2)*(obj1.mass**5)*obj1.Lamda +\
                 (-919+3179*(1+self.__dict__['q'])-2286/(1+self.__dict__['q'])+\
                 260/(1+self.__dict__['q'])**2)*(obj2.mass**5)*obj2.Lamda )/(obj1.mass+obj2.mass)**5
-        if self.__dict__['Lamda']:
+        if self.__dict__['Lamda_T']:
             self.tidal = True
-            self.keys += ['Lamda','Lamda_2']
+            self.keys += ['Lamda_T','delta_Lamda']
         else:
             self.tidal = False
         self.eval = False
@@ -173,42 +249,90 @@ class TaylorF2():
         return fmin
 
     def __call__(self,f):
+        """
+        Value of the strain at a given frequency.
+
+        Parameters
+        ----------
+        f : float
+            Frequency (in units of Hz).
+
+        Returns
+        -------
+        strain : complex
+            Value of the strain at f.
+        """
         if not self.eval:
             ## update eval
             self.eval = False
             params = {k:self.__dict__[k] for k in self.keys}
             ## phase
-            self.phase_eval = self.phase().subs(params)
+            self.phase_eval = self._phase_().subs(params)
             self.phase_eval = sp.lambdify('f',self.phase_eval,modules='numpy')
             ## amplitude
-            self.amplitude_eval = self.amplitude().subs(params)
+            self.amplitude_eval = self._amplitude_().subs(params)
             self.amplitude_eval = sp.lambdify('f',self.amplitude_eval,modules='numpy')
         amplitude = self.amplitude_eval(f)
         phase = self.phase_eval(f)
         return amplitude*np.exp(1j*phase)
 
-    def evaluate_Nabla(self,keys=None):
-        self.Nabla = {}
+    def _evaluate_Nabla_(self,keys=None):
+        """
+        Computes the derivatives w.r.t. the arguments in keys.
+
+        Parameters
+        ----------
+        keys : list of str or None
+            Independent variables w.r.t. which the Fisher matrix is evaluated. If ``None``, the default self.keys is assumed.
+        
+        Returns
+        -------
+        Nabla : dict{str: lambda function}
+            Dictionary {argument: derivative w.r.t. argument}.
+        
+        """
+        Nabla = {}
         if not keys:
             keys = self.keys
-        for parameter in keys:
-            self.Nabla[parameter] = self.diff_(parameter)
-        return None
+        for argument in keys:
+            Nabla[argument] = self._diff_(argument)
+        return Nabla
 
-    def diff_(self,parameter):
+    def _diff_(self,argument):
+        """
+        Derivative of the strain w.r.t. to the argument.
+
+        Parameters
+        ----------
+        argument : str
+            Variable w.r.t. which the differential is evaluated.
+
+        Returns
+        -------
+        out : lambda function
+            Function returning the differential at a given frequency.
+
+        Notes
+        -----
+        Because the amplitude is treated as an independent variable, only the phase is differentiated.
+        """
         keys = deepcopy(self.keys)
-        keys.remove(parameter)
+        keys.remove(argument)
         params = {k:self.__dict__[k] for k in keys}
         ## phase
-        ph_diff = self.phase().subs(params)
-        ph_diff = sp.diff(ph_diff,parameter)
-        ph_diff = ph_diff.subs({parameter:self.__dict__[parameter]})
+        ph_diff = self._phase_().subs(params)
+        ph_diff = sp.diff(ph_diff,argument)
+        ph_diff = ph_diff.subs({argument:self.__dict__[argument]})
         ph_diff = sp.lambdify('f',ph_diff,modules='numpy')
         ##
         out = lambda f: self(f)*ph_diff(f)
         return out
 
-    def amplitude(self,PN=0):
+    def _amplitude_(self,PN=0):
+        """
+        Returns a symbolic expression for the amplitude in terms of the independent varialbles in self.keys.
+        The amplitude is truncated at the specified PN order. 
+        """
         cfs = amplitude_coefficients()
         ## restrict to PN order
         out = 0
@@ -222,12 +346,17 @@ class TaylorF2():
         ## change variables
         out = out.subs([('M','M_c/(eta)**Rational(3,5)'),('delta','sqrt(1-4*eta)')])
         ## replace numerical physical quantities
-        out = out.subs([('c',cc),('D_L',self.__dict__['D_L']),\
+        out = out.subs([('c',cc),('d_L',self.__dict__['d_L']),\
                        ('kappa_a',self.__dict__['kappa_a']),\
                        ('kappa_s',self.__dict__['kappa_s'])])
         return out
 
-    def phase(self,PN=3.5):
+    def _phase_(self,PN=3.5):
+        """
+        Return a symbolic expression for the phase in term of the independent variables in self.keys.
+        The phase is truncated at the specified PN order.
+        If self.tidal=True, tidal terms at 5PN and 6PN are also added.
+        """
         cfs = phase_coefficients()
         ## restrict to PN order
         out = 0
@@ -235,7 +364,7 @@ class TaylorF2():
             out += cfs[i]*v**i
         ## add tidal terms
         if self.tidal == True:
-            out += -Rational(39,2)*Lamda*v**10 -Rational(3115,64)*Lamda*v**12 + Rational(6595,364)*delta*Lamda2*v**12
+            out += -Rational(39,2)*Lamda_T*v**10 -Rational(3115,64)*Lamda_T*v**12 + Rational(6595,364)*delta*delta_Lamda*v**12
         ## add normalization
         out *= 3/(128*eta*v**5)
         ## add constant phase terms
@@ -244,7 +373,7 @@ class TaylorF2():
         ## change variables
         out = out.subs([('M','M_c/(eta)**Rational(3,5)'),('delta','sqrt(1-4*eta)')])
         ## replace numerical physical quantities
-        out = out.subs([('c',cc),('D_L',self.__dict__['D_L']),\
+        out = out.subs([('c',cc),('d_L',self.__dict__['d_L']),\
                        ('kappa_a',self.__dict__['kappa_a']),\
                        ('kappa_s',self.__dict__['kappa_s'])])
         return out

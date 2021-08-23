@@ -1,37 +1,56 @@
 import numpy as np
 from scipy.integrate import simps
-from scipy.interpolate import interp1d
+from scipy.optimize import root_scalar
 from os.path import realpath, dirname
-
-full_path = realpath(__file__)
-dir_path = dirname(full_path)
 
 from ..constants import speed_of_light, omega_matter, omega_lamda, H0
 cc = speed_of_light*1e-3 # Km/s
 
-def luminosity_distance(z):
+def distance_from_redshift(z):
+    """
+    Returns the luminosity distance d_L from the redshift z.
+   
+    Uses the Planck 2018 cosmological parameters from Tab.1 in https://arxiv.org/abs/1807.06209.
+
+    Parameters
+    ----------
+    z : float
+        Redshift.
+
+    Returns
+    -------
+    d_L : float
+        Luminosity distance (in units of Mpc).
+    """
     integrand = lambda x: 1/np.sqrt(omega_matter*(1+x)**3+omega_lamda)
     dz = 1e-3
     X = np.arange(0,z+dz,dz)
     Y = integrand(X)
-    dL = cc/H0*(1+z)*simps(Y,X)
-    return dL
+    d_L = cc/H0*(1+z)*simps(Y,X)
+    return d_L
 
-## calibrated from redshift 0 to redshift 20
-filename = dir_path+'/redshift_distance_table.dat'
+def redshift_from_distance(d_L):
+    """
+    Returns the redshift z from the luminosity distance d_L.
 
-try:
-    data = np.genfromtxt(filename).T
-except:
-    print('File %s does not exist!'%filename)
-    print('Generating %s...'%filename)
-    redshifts = np.linspace(0,20,1000)
-    distances = np.array([luminosity_distance(z) for z in redshifts])
-    X = np.vstack((redshifts,distances)).T
-    np.savetxt(filename,X)
-    print('%s generated!'%filename)
-    data = np.genfromtxt(filename).T
+    Uses the Planck 2018 cosmological parameters from Tab.1 in https://arxiv.org/abs/1807.06209.
 
-redshift_from_distance = interp1d(data[1],data[0])
-distance_from_redshift = interp1d(data[0],data[1])
+    Parameters
+    ----------
+    d_L : float
+        Luminosity distance (in units of Mpc).
 
+    Returns
+    -------
+    z : float
+        Redshift.
+
+    Notes
+    -----
+    A solution for z is searched in the interval [0,20]. This restricts the allowed values of d_L in [0,231518] Mpc.
+    """
+    if d_L>231518:
+        raise ValueError('d_L must be less than 231518 Mpc!')
+    f = lambda x: d_L - distance_from_redshift(x)
+    z = root_scalar(f,method='bisect',bracket=[0,20])
+    return z.root

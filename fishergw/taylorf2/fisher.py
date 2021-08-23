@@ -46,7 +46,7 @@ class Fisher():
         if not keys:
             keys = self.signal.keys
         self.keys = keys
-        self.signal.evaluate_Nabla(keys=keys)
+        Nabla = self.signal._evaluate_Nabla_(keys=keys)
         dim = len(keys)
         if not fmin:
             fmin = self.fmin
@@ -54,7 +54,7 @@ class Fisher():
             fmax = self.fmax
         self.snr = self.SNR(fmin,fmax,nbins=nbins)
         self.fm = np.zeros((dim,dim))
-        derivatives = list(self.signal.Nabla.values())
+        derivatives = list(Nabla.values())
         f = np.linspace(fmin,fmax,int(nbins))
         for i in range(dim):
             for j in range(i,dim):
