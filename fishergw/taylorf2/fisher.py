@@ -11,21 +11,21 @@ class Fisher():
     An object to load the power spectral density (PSD) and compute the signal-to-noise ratio (SNR) and the Fisher matrix elements of a gravitational wave signal. The SNR and the Fisher matrix are averaged over orientation and inclination angles.
     
     Attributes:
-        signal : Waveform object.
+        **signal** *(TaylorF2)* -- Waveform object.
 
-        integration_method : An integration method from the ``scipy.integrate`` module.
+        **integration_method** *(scipy.integrate)* -- An integration method from the ``scipy.integrate`` module.
 
-        psd : Interpolant of the PSD.
+        **psd** *(scipy.interpolate.interp1d)* -- Interpolant of the PSD.
 
-        fmin : If ``psd_name`` is provided, ``fmin`` is the corresponding minimum frequency. Otherwise, ``fmin`` = ``None``.
+        **fmin** *(float)* -- If ``psd_name`` is provided, ``fmin`` is the corresponding minimum frequency. Otherwise, ``fmin`` = ``None``.
 
-        fmax : If ``psd_name`` is provided, ``fmax`` is the corresponding maximum frequency. Otherwise, ``fmax`` = ``None``.
+        **fmax** *(float)* -- If ``psd_name`` is provided, ``fmax`` is the corresponding maximum frequency. Otherwise, ``fmax`` = ``None``.
 
-        Qavg : Angle-averaging factor. When the ``self.load_psd`` is called, the PSD is divided by ``Qavg`` ^2 to ensure that the SNR and the Fisher matrix elements are angle-averaged.
+        **Qavg** *(float)* -- Angle-averaging factor. When the ``self.load_psd`` is called, the PSD is divided by ``Qavg`` ^2 to ensure that the SNR and the Fisher matrix elements are angle-averaged.
     
-        keys : List of the independent variables w.r.t. which the Fisher matrix is evaluated.
+        **keys** *(list)* -- Independent variables w.r.t. which the Fisher matrix is evaluated.
 
-        _detectors_ : Dictionary mapping default detector names to their ``psd_name`` and ``Qavg`` factor. Default detectors are Advanced Ligo ('aLigo'), Cosmic Explorer ('CE'), Einstein Telescope ('ET') and LISA ('lisa').
+        **_detectors_** *(dict)* -- Dictionary mapping default detector names to their ``psd_name`` and ``Qavg`` factor. Default detectors are Advanced Ligo ('aLigo'), Cosmic Explorer ('CE'), Einstein Telescope ('ET') and LISA ('lisa').
         The following conventions hold for Qavg:
         
             'aLigo' and 'CE' are mapped to the factor ``Qavg`` =2/5 for a two-armed 90-degrees detector (see, e.g., Eq. (7.177) in [1]);
@@ -82,7 +82,7 @@ class Fisher():
         Returns the SNR of the signal.
 
         :param fmin: Minimum frequency. If ``None``, defaults to the minimum frequency set by the provided PSD file.
-        :type fmax: float or None, optional
+        :type fmin: float or None, optional
 
         :param fmax: Maximum frequency. If ``None``, defaults to the maximum frequency set by the provided PSD file.
         :type fmax: float or None, optional

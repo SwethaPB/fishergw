@@ -23,13 +23,13 @@ class CompactObject():
     A class to define an isolated compact object.
 
     Attributes:
-        mass : Mass [M_sun].    
+        **mass** *(float)* -- Mass [M_sun].    
         
-        spin : Dimensionless spin. 
-
-        Lamda : Dimensionless tidal deformability.
-    
-        kappa : Dimensionless spin-induced quadrupole moment.
+        **spin** *(float)* -- Dimensionless spin. 
+        
+        **Lamda** *(float)* -- Dimensionless tidal deformability.
+        
+        **kappa** *(float)* -- Dimensionless spin-induced quadrupole moment.
     """
     # Notes
     # -----
@@ -49,6 +49,7 @@ class CompactObject():
 
         :param kappa: Dimensionless spin-induced quadrupole moment. Defaults to the black hole value.
         :type kappa: float, default=1.0
+
         """
         self.mass = mass
         self.spin = spin
@@ -58,15 +59,13 @@ class CompactObject():
 
 def _amplitude_coefficients_():
     """
-    Returns the amplitude coefficients of the TaylorF2 template.
+    Returns the amplitude PN coefficients of the TaylorF2 template.
     
     Coefficients are expanded in powers of v=(pi*M*f/c)**(1/3) and normalized to 1 for v=0.
     
     Includes terms up to 3PN order (see Eq.s (B14-B20) in https://arxiv.org/abs/1508.07253).
 
-    Returns:
-        out : list
-            List of sympy expressions for the PN coefficients.
+    :rtype: list
     """
     ## numerical factors
     pi = sp.pi
@@ -97,15 +96,13 @@ def _amplitude_coefficients_():
 
 def _phase_coefficients_():
     """
-    Returns the phase coefficients of the TaylorF2 template.
+    Returns the phase PN coefficients of the TaylorF2 template.
     
     Coefficients are expanded in powers of v=(pi*M*f/c)**(1/3) and normalized to 1 for v=0.
     
     Includes point-particle and spin-induced terms up to 3.5PN order (see Eq.s (B6-B13) in https://arxiv.org/abs/1508.07253 and Eq.s (0.5a-c) in https://arxiv.org/abs/1701.06318).
 
-    Returns:
-        out : list
-            list of sympy symbolic expressions of the PN coefficients.
+    :rtype: list
 
     Notes:
         The 3.5PN spin-induced term neglects the quadrupole and octupole moment corrections from Eq. (0.5c) in https://arxiv.org/pdf/1701.06318.pdf. Quadrupole corrections are instead included in the 2PN and 3PN terms, as per Eq.s (0.5a-b). 
@@ -172,33 +169,33 @@ class TaylorF2():
     TaylorF2 frequency-domain template for the inspiral waveform from a binary coalescence.
 
     Attributes:
-        d_L : Luminosity distance [Mpc].
+        **d_L** *(float)* -- Luminosity distance [Mpc].
 
-        tc : Time of coalescence.
+        **t_c** *(float)* -- Time of coalescence.
 
-        phic : Phase of coalescence.
+        **phi_c** *(float)* -- Phase of coalescence.
 
-        M : Total mass in the detector frame [m].
+        **M** *(float)* -- Total mass in the detector frame [m].
     
-        kappa_s : Symmetrized quadrupole moment.
+        **kappa_s** *(float)* -- Symmetrized quadrupole moment.
     
-        kappa_a : Antisymmetrized quadrupole moment.
+        **kappa_a** *(float)* -- Antisymmetrized quadrupole moment.
     
-        eta : Symmetric mass ratio.
+        **eta** *(float)* -- Symmetric mass ratio.
     
-        M_c : Chirp mass in the detector frame [m].
+        **M_c** *(float)* -- Chirp mass in the detector frame [m].
     
-        q : Mass ratio ``obj1.mass/obj2.mass``.
+        **q** *(float)* -- Mass ratio ``obj1.mass/obj2.mass``.
     
-        chi_s : Symmetrized dimensionless spin.
+        **chi_s** *(float)* -- Symmetrized dimensionless spin.
     
-        chi_a : Antisymmetrized dimensionless spin.
+        **chi_a** *(float)* -- Antisymmetrized dimensionless spin.
     
-        Lamda_T : Dimensionless tidal deformability of the binary, according to Eq. (14) in https://arxiv.org/abs/1410.8866.
+        **Lamda_T** *(float)* -- Dimensionless tidal deformability of the binary, according to Eq. (14) in https://arxiv.org/abs/1410.8866.
 
-        delta_Lambda : Auxiliary tidal parameter, according to Eq. (15) in https://arxiv.org/abs/1410.8866.
+        **delta_Lambda** *(float)* -- Auxiliary tidal parameter, according to Eq. (15) in https://arxiv.org/abs/1410.8866.
     
-        keys : List of the independent variables w.r.t. which the Fisher matrix is evaluated. Defaults ['t_c', 'phi_c', 'M_c', 'eta', 'chi_s', 'chi_a'] If ``Lambda_T`` is not zero, ['Lamda_T', 'delta_Lamda'] are added to keys.
+        **keys** *(list)*-- Independent variables w.r.t. which the Fisher matrix is evaluated. Defaults ['t_c', 'phi_c', 'M_c', 'eta', 'chi_s', 'chi_a'] If ``Lambda_T`` is not zero, ['Lamda_T', 'delta_Lamda'] are added to keys.
 
     Notes:
         Because the TaylorF2 phase is linear in t_c and phi_c, the actual values of t_c and phi_c are irrelevant to the computation of the Fisher matrix and can be left to their default.
