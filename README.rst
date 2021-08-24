@@ -36,7 +36,6 @@ Usage of taylorf2
 
 Usage of cosmology
 ------------------
-::
 
     >>> from fishergw.cosmology import redshift_from_distance, distance_from_redshift
     >>> z = redshift_from_distance(100)
