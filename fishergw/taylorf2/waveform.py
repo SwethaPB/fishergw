@@ -22,19 +22,18 @@ class CompactObject():
     """
     A class to define an isolated compact object.
 
-    Attributes
-    ----------
-    mass : float
-        Mass (in units of salr masses).
-    
-    spin : float
-        Dimensionless spin.
-    
-    Lamda : float
-        Tidal deformability.
-    
-    kappa : float
-        Dimensionless spin-induced quadrupole moment.
+    Attributes:
+        mass : float
+            Mass (in units of salr masses).
+        
+        spin : float
+            Dimensionless spin. 
+        
+        Lamda : float
+            Tidal deformability.
+        
+        kappa : float
+            Dimensionless spin-induced quadrupole moment.
     """
     # Notes
     # -----
@@ -43,19 +42,18 @@ class CompactObject():
     
     def __init__(self, mass, spin, Lamda=0.0, kappa=1.0):
         """
-        Parameters
-        ----------
-        mass : float
-            Mass (in units of salr masses).
-        
-        spin : float
-            Dimensionless spin.
-        
-        Lamda : float, default=0.0
-            Tidal deformability. Defaults to the black hole value.
-        
-        kappa : float, default=1.0
-            Dimensionless spin-induced quadrupole moment. Defaults to the black hole value.
+        Parameters:
+            mass : float
+                Mass (in units of salr masses).
+            
+            spin : float
+                Dimensionless spin.
+            
+            Lamda : float, default=0.0
+                Tidal deformability. Defaults to the black hole value.
+            
+            kappa : float, default=1.0
+                Dimensionless spin-induced quadrupole moment. Defaults to the black hole value.
         """
         self.mass = mass
         self.spin = spin
@@ -63,16 +61,17 @@ class CompactObject():
         self.Lamda = Lamda
 
 
-def amplitude_coefficients():
+def _amplitude_coefficients_():
     """
     Returns the amplitude coefficients of the TaylorF2 template.
+    
     Coefficients are expanded in powers of v=(pi*M*f/c)**(1/3) and normalized to 1 for v=0.
-    Includes terms up to 3PN order (see Eq.s(B14-B20) in https://arxiv.org/abs/1508.07253).
+    
+    Includes terms up to 3PN order (see Eq.s (B14-B20) in https://arxiv.org/abs/1508.07253).
 
-    Returns
-    -------
-    out : list
-        list of sympy symbolic expressions of the PN coefficients.
+    Returns:
+        out : list
+            List of sympy expressions for the PN coefficients.
     """
     ## numerical factors
     pi = sp.pi
@@ -101,20 +100,20 @@ def amplitude_coefficients():
     return out
 
 
-def phase_coefficients():
+def _phase_coefficients_():
     """
     Returns the phase coefficients of the TaylorF2 template.
+    
     Coefficients are expanded in powers of v=(pi*M*f/c)**(1/3) and normalized to 1 for v=0.
-    Includes point-particle and spin-induced terms up to 3.5PN order (see Eq.s(B6-B13) in https://arxiv.org/abs/1508.07253 and Eq.s(0.5a-c) in https://arxiv.org/abs/1701.06318).
+    
+    Includes point-particle and spin-induced terms up to 3.5PN order (see Eq.s (B6-B13) in https://arxiv.org/abs/1508.07253 and Eq.s (0.5a-c) in https://arxiv.org/abs/1701.06318).
 
-    Returns
-    -------
-    out : list
-        list of sympy symbolic expressions of the PN coefficients.
+    Returns:
+        out : list
+            list of sympy symbolic expressions of the PN coefficients.
 
-    Notes
-    -----
-    The 3.5PN spin-induced term neglects the quadrupole and octupole moment corrections from Eq.(0.5c) in https://arxiv.org/pdf/1701.06318.pdf. Quadrupole corrections are instead included in the 2PN and 3PN terms, as per Eq.s(0.5a-b). 
+    Notes:
+        The 3.5PN spin-induced term neglects the quadrupole and octupole moment corrections from Eq. (0.5c) in https://arxiv.org/pdf/1701.06318.pdf. Quadrupole corrections are instead included in the 2PN and 3PN terms, as per Eq.s (0.5a-b). 
     """
     ## numerical factors
     pi = sp.pi
@@ -177,69 +176,7 @@ class TaylorF2():
     """
     TaylorF2 frequency-domain template for the inspiral waveform from a binary coalescence.
 
-    Attributes
-    ----------
-    d_L : float, default=100.0
-        Luminosity distance in units of Mpc.
-
-    tc : float, default=0.0
-        Time of coalescence.
-
-    phic : float, default=0.0
-        Phase of coalescence.
-
-    M : float
-        Total mass in the detector frame, in units of m.
-    
-    kappa_s : float
-        Symmetrized quadrupole moment.
-    
-    kappa_a : float
-        Antisymmetrized quadrupole moment.
-    
-    eta : float
-        Symmetric mass ratio.
-    
-    M_c : float
-        Chirp mass in the detector frame, in units of m.
-    
-    q : float
-        Mass ratio obj1.mass/obj2.mass.
-    
-    chi_s : float
-        Symmetrized dimensionless spin.
-    
-    chi_a : float
-        Antisymmetrized dimensionless spin.
-    
-    Lamda_T : float
-        Tidal deformability of the binary, according to Eq.(14) in https://arxiv.org/abs/1410.8866.
-
-    delta_Lambda : float
-        Auxiliary tidal parameter, according to Eq.(15) in https://arxiv.org/abs/1410.8866.
-    
-    keys : list of str, default=['t_c','phi_c','M_c','eta','chi_s','chi_a']
-        Independent variables w.r.t. which the Fisher matrix is evaluated. If Lambda_T is not zero, ['Lamda_T','delta_Lamda'] are added to keys.
-
-    Notes
-    -----
-    Because the TaylorF2 phase is linear in t_c and phi_c, the actual values of t_c and phi_c are irrelevant to the computation of the Fisher matrix and can be left to their default.
-
-    TaylorF2 assumes that the normalization of Eq.(7.177) in [1], without the angular factor Q.
-    
-    [1] Maggiore, Michele. Gravitational waves: Volume 1: Theory and experiments. Vol. 1. Oxford university press, 2008.
-    """
-
-    def __init__(self,obj1,obj2,d_L=100.0,t_c=0.0,phi_c=0.0,redshift=False):
-        """
-        Parameters
-        ----------
-        obj1 : CompactObject instance
-            Primary compact object in the binary.
-
-        obj2 : CompactObject instance
-            Secondary compact object in the binary.
-
+    Attributes:
         d_L : float, default=100.0
             Luminosity distance in units of Mpc.
 
@@ -249,8 +186,67 @@ class TaylorF2():
         phic : float, default=0.0
             Phase of coalescence.
 
-        redshift : bool, default=False
-            If ``True``, the masses are redshifted, otherwise the redshift is neglected.
+        M : float
+            Total mass in the detector frame, in units of m.
+    
+        kappa_s : float
+            Symmetrized quadrupole moment.
+    
+        kappa_a : float
+            Antisymmetrized quadrupole moment.
+    
+        eta : float
+            Symmetric mass ratio.
+    
+        M_c : float
+            Chirp mass in the detector frame, in units of m.
+    
+        q : float
+            Mass ratio obj1.mass/obj2.mass.
+    
+        chi_s : float
+            Symmetrized dimensionless spin.
+    
+        chi_a : float
+            Antisymmetrized dimensionless spin.
+    
+        Lamda_T : float
+            Tidal deformability of the binary, according to Eq. (14) in https://arxiv.org/abs/1410.8866.
+
+        delta_Lambda : float
+            Auxiliary tidal parameter, according to Eq. (15) in https://arxiv.org/abs/1410.8866.
+    
+        keys : list of str, default=['t_c','phi_c','M_c','eta','chi_s','chi_a']
+            Independent variables w.r.t. which the Fisher matrix is evaluated. If Lambda_T is not zero, ['Lamda_T','delta_Lamda'] are added to keys.
+
+    Notes:
+        Because the TaylorF2 phase is linear in t_c and phi_c, the actual values of t_c and phi_c are irrelevant to the computation of the Fisher matrix and can be left to their default.
+
+        TaylorF2 assumes that the normalization of Eq. (7.177) in [1], without the angular factor Q.
+    
+    [1] Maggiore, Michele. Gravitational waves: Volume 1: Theory and experiments. Vol. 1. Oxford university press, 2008.
+    """
+
+    def __init__(self,obj1,obj2,d_L=100.0,t_c=0.0,phi_c=0.0,redshift=False):
+        """
+        Parameters:
+            obj1 : CompactObject instance
+                Primary compact object in the binary.
+
+            obj2 : CompactObject instance
+                Secondary compact object in the binary.
+
+            d_L : float, default=100.0
+                Luminosity distance in units of Mpc.
+
+            tc : float, default=0.0
+                Time of coalescence.
+
+            phic : float, default=0.0
+                Phase of coalescence.
+
+            redshift : bool, default=False
+                If ``True``, the masses are redshifted, otherwise the redshift is neglected.
         """
         if redshift:
             self.redshift = redshift_from_distance(d_L)
@@ -288,15 +284,13 @@ class TaylorF2():
         """
         Compute the ISCO frequency of the system. It is the recommended maximum frequency when computing the SNR and the Fisher matrix.
 
-        Parameters
-        ----------
-        mode : str, default='static'
-            If ``static``, neglects the contribution of the indivudal spins.
+        Parameters:
+            mode : str, default='static'
+                If ``static``, neglects the contribution of the indivudal spins. Currently, this is the only supported option.
 
-        Returns
-        -------
-        fmax : float
-            The ISCO frequency.
+        Returns:
+            fmax : float
+                The ISCO frequency.
 
         """
         #Notes
@@ -311,17 +305,15 @@ class TaylorF2():
 
     def start_frequency_from_obs_time(self,obs_time=1.0):
         """
-        Returns the starting frequency given the osbervational time, as per Eq.(2.15) in https://arxiv.org/abs/gr-qc/0411129v2.
+        Returns the starting frequency given the osbervational time, as per Eq. (2.15) in https://arxiv.org/abs/gr-qc/0411129v2.
         
-        Parameters
-        ----------
-        obs_time : float, default=1
-            The observational time (in units of yr).
+        Parameters:
+            obs_time : float, default=1.0
+                The observational time (in units of yr).
 
-        Returns
-        -------
-        fmin : float
-            The starting frequency.
+        Returns:
+            fmin : float
+                The starting frequency.
         """
         fmin = 4.149e-5*(obs_time)**(-3/8)*(self.M_c*1e-6)**(-5/8)
         return fmin
@@ -330,15 +322,13 @@ class TaylorF2():
         """
         Value of the strain at a given frequency.
 
-        Parameters
-        ----------
-        f : float
-            Frequency (in units of Hz).
+        Parameters:
+            f : float
+                Frequency (in units of Hz).
 
-        Returns
-        -------
-        strain : complex
-            Value of the strain at f.
+        Returns:
+            _ : complex
+                Value of the strain at f.
         """
         if not self._eval_:
             ## update eval
@@ -358,15 +348,13 @@ class TaylorF2():
         """
         Computes the derivatives w.r.t. the arguments in keys.
 
-        Parameters
-        ----------
-        keys : list of str or None
-            Independent variables w.r.t. which the Fisher matrix is evaluated. If ``None``, the default self.keys is assumed.
+        Parameters:
+            keys : list of str or None
+                Independent variables w.r.t. which the Fisher matrix is evaluated. If ``None``, the default self.keys is assumed.
         
-        Returns
-        -------
-        Nabla : dict
-            Argument names mapped to their derivative estimators.
+        Returns:
+            Nabla : dict
+                Argument names mapped to their derivative estimators.
         
         """
         Nabla = {}
@@ -380,19 +368,16 @@ class TaylorF2():
         """
         Derivative of the strain w.r.t. to the argument.
 
-        Parameters
-        ----------
-        argument : str
-            Variable w.r.t. which the differential is evaluated.
+        Parameters:
+            argument : str
+                Variable w.r.t. which the differential is evaluated.
 
-        Returns
-        -------
-        out : lambda function
-            Estimator the differential.
+        Returns:
+            _ : lambda function
+                Estimator the differential.
 
-        Notes
-        -----
-        Because the amplitude is treated as an independent variable, only the phase is differentiated.
+        Notes:
+            Because the amplitude is treated as an independent variable, only the phase is differentiated.
         """
         keys = deepcopy(self.keys)
         keys.remove(argument)
@@ -408,10 +393,11 @@ class TaylorF2():
 
     def _amplitude_(self,PN=0):
         """
-        Returns a sympy expression for the amplitude in terms of the independent varialbles in self.keys. 
+        Returns a sympy expression for the amplitude in terms of the independent varialbles in self.keys.
+        
         The amplitude is truncated at the specified PN order. 
         """
-        cfs = amplitude_coefficients()
+        cfs = _amplitude_coefficients_()
         ## restrict to PN order
         out = 0
         for i in range(int(2*PN)+1):
@@ -432,10 +418,12 @@ class TaylorF2():
     def _phase_(self,PN=3.5):
         """
         Returns a sympy expression for the phase in term of the independent variables in self.keys.
+        
         The phase is truncated at the specified PN order.
+        
         If self.tidal=True, tidal terms at 5PN and 6PN are also added.
         """
-        cfs = phase_coefficients()
+        cfs = _phase_coefficients_()
         ## restrict to PN order
         out = 0
         for i in range(int(2*PN)+1):

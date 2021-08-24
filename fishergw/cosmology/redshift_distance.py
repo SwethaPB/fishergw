@@ -9,17 +9,15 @@ def distance_from_redshift(z):
     """
     Returns the luminosity distance d_L from the redshift z.
    
-    Uses the Planck 2018 cosmological parameters from Tab.1 in https://arxiv.org/abs/1807.06209.
+    Uses the Planck 2018 cosmological parameters from Tab. 1 in https://arxiv.org/abs/1807.06209.
 
-    Parameters
-    ----------
-    z : float
-        Redshift.
+    Parameters:
+        z : float
+            Redshift.
 
-    Returns
-    -------
-    d_L : float
-        Luminosity distance (in units of Mpc).
+    Returns:
+        d_L : float
+            Luminosity distance (in units of Mpc).
     """
     integrand = lambda x: 1/np.sqrt(omega_matter*(1+x)**3+omega_lamda)
     dz = 1e-3
@@ -32,21 +30,18 @@ def redshift_from_distance(d_L):
     """
     Returns the redshift z from the luminosity distance d_L.
 
-    Uses the Planck 2018 cosmological parameters from Tab.1 in https://arxiv.org/abs/1807.06209.
+    Uses the Planck 2018 cosmological parameters from Tab. 1 in https://arxiv.org/abs/1807.06209.
 
-    Parameters
-    ----------
-    d_L : float
-        Luminosity distance (in units of Mpc). Must be less than 231518.
+    Parameters:
+        d_L : float
+            Luminosity distance (in units of Mpc). Must be less than 231518.
 
-    Returns
-    -------
-    z : float
-        Redshift.
+    Returns:
+        z : float
+            Redshift.
 
-    Notes
-    -----
-    A solution for z is searched in the interval [0,20]. This restricts the allowed values of d_L in [0,231518] Mpc.
+    Notes:
+        A solution for z is searched in the interval [0,20]. This restricts the allowed values of d_L in [0,231518] Mpc.
     """
     if d_L>231518:
         raise ValueError('d_L must be less than 231518 Mpc!')
