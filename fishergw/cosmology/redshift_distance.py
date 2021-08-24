@@ -11,8 +11,7 @@ def distance_from_redshift(z):
    
     Uses the Planck 2018 cosmological parameters from Tab. 1 in https://arxiv.org/abs/1807.06209.
 
-    :param z: Redshift.
-    :type z: float
+    :param float z: Redshift.
 
     :rtype: float
     """
@@ -29,13 +28,13 @@ def redshift_from_distance(d_L):
 
     Uses the Planck 2018 cosmological parameters from Tab. 1 in https://arxiv.org/abs/1807.06209.
 
-    :param d_L: Luminosity distance [Mpc]. Must be less than 231518.
-    :type d_L: float
+    :param float d_L: Luminosity distance [Mpc]. Must be less than 231518.
     
     :rtype: float
 
-    Notes:
-        A solution for z is searched in the interval [0,20]. This restricts the allowed values of d_L in [0,231518] Mpc.
+    .. note::
+
+       A solution for z is searched in the interval [0,20]. This restricts the allowed values of d_L in [0,231518] Mpc.
     """
     if d_L>231518:
         raise ValueError('d_L must be less than 231518 Mpc!')

@@ -23,7 +23,7 @@ class CompactObject():
     A class to define an isolated compact object.
 
     Attributes:
-        **mass** *(float)* -- Mass [M_sun].    
+        **mass** *(float)* -- Mass [:math:`M_\odot`].    
         
         **spin** *(float)* -- Dimensionless spin. 
         
@@ -38,7 +38,7 @@ class CompactObject():
     
     def __init__(self, mass, spin, Lamda=0.0, kappa=1.0):
         """
-        :param mass: Mass (in units of salr masses).
+        :param mass: Mass [:math:`M_\odot`].
         :type mass: float    
             
         :param spin: Dimensionless spin.
@@ -104,8 +104,9 @@ def _phase_coefficients_():
 
     :rtype: list
 
-    Notes:
-        The 3.5PN spin-induced term neglects the quadrupole and octupole moment corrections from Eq. (0.5c) in https://arxiv.org/pdf/1701.06318.pdf. Quadrupole corrections are instead included in the 2PN and 3PN terms, as per Eq.s (0.5a-b). 
+    .. note::
+        
+       The 3.5PN spin-induced term neglects the quadrupole and octupole moment corrections from Eq. (0.5c) in https://arxiv.org/pdf/1701.06318.pdf. Quadrupole corrections are instead included in the 2PN and 3PN terms, as per Eq.s (0.5a-b). 
     """
     ## numerical factors
     pi = sp.pi
@@ -176,6 +177,10 @@ class TaylorF2():
         **phi_c** *(float)* -- Phase of coalescence.
 
         **M** *(float)* -- Total mass in the detector frame [m].
+
+        .. note::
+          
+           In :class:`TaylorF2`, masses are transformed in units of meters as :math:`MG/c^2`.
     
         **kappa_s** *(float)* -- Symmetrized quadrupole moment.
     
@@ -195,12 +200,16 @@ class TaylorF2():
 
         **delta_Lambda** *(float)* -- Auxiliary tidal parameter, according to Eq. (15) in https://arxiv.org/abs/1410.8866.
     
-        **keys** *(list)*-- Independent variables w.r.t. which the Fisher matrix is evaluated. Defaults ['t_c', 'phi_c', 'M_c', 'eta', 'chi_s', 'chi_a'] If ``Lambda_T`` is not zero, ['Lamda_T', 'delta_Lamda'] are added to keys.
+        **keys** *(list)*-- Independent variables w.r.t. which the Fisher matrix is evaluated. Defaults ``['t_c','phi_c','M_c','eta','chi_s','chi_a']`` If ``Lambda_T`` is not zero, ``['Lamda_T','delta_Lamda']`` are added to keys.
 
-    Notes:
-        Because the TaylorF2 phase is linear in t_c and phi_c, the actual values of t_c and phi_c are irrelevant to the computation of the Fisher matrix and can be left to their default.
+    .. note::
+    
+       Because the TaylorF2 phase is linear in ``t_c`` and ``phi_c``, the actual values of ``t_c`` and ``phi_c`` are irrelevant to the computation of the Fisher matrix and can be left to their default.
+    .. note::
 
-        TaylorF2 assumes that the normalization of Eq. (7.177) in [1], without the angular factor Q.
+       TaylorF2 assumes that the normalization of Eq. (7.177) in [1], without the angular factor Q.
+    
+    References:
     
     [1] Maggiore, Michele. Gravitational waves: Volume 1: Theory and experiments. Vol. 1. Oxford university press, 2008.
     """
@@ -209,10 +218,10 @@ class TaylorF2():
         """
         
         :param obj1: Primary compact object in the binary.
-        :type obj1: CompactObject
+        :type obj1: :class:`CompactObject`
 
         :param obj2: Secondary compact object in the binary.
-        :type obj2: CompactObject
+        :type obj2: :class:`CompactObject`
 
         :param d_L: Luminosity distance [Mpc].
         :type d_L: float, default=100.0
@@ -316,16 +325,14 @@ class TaylorF2():
 
     def _evaluate_Nabla_(self,keys=None):
         """
-        Computes the derivatives w.r.t. the arguments in keys.
+        Computes the derivatives w.r.t. the arguments in ``keys``.
 
-        Parameters:
-            keys : list of str or None
-                Independent variables w.r.t. which the Fisher matrix is evaluated. If ``None``, the default self.keys is assumed.
+        :param keys: Independent variables w.r.t. which the Fisher matrix is evaluated. If ``None``, the default ``self.keys`` is assumed.
+        :type keys: list of str or None
         
-        Returns:
-            Nabla : dict
-                Argument names mapped to their derivative estimators.
+        :returns: ``keys`` mapped to their derivative estimators.
         
+        :rtype: dict
         """
         Nabla = {}
         if not keys:
@@ -338,16 +345,16 @@ class TaylorF2():
         """
         Derivative of the strain w.r.t. to the argument.
 
-        Parameters:
-            argument : str
-                Variable w.r.t. which the differential is evaluated.
+        :param argument: Variable w.r.t. which the differential is evaluated.
+        :type argument: str
 
-        Returns:
-            _ : lambda function
-                Estimator the differential.
+        :returns: Estimator the differential.
+        
+        :rtype: lambda function
 
-        Notes:
-            Because the amplitude is treated as an independent variable, only the phase is differentiated.
+        .. note::
+
+           Because the amplitude is treated as an independent variable, only the phase is differentiated.
         """
         keys = deepcopy(self.keys)
         keys.remove(argument)
@@ -391,7 +398,7 @@ class TaylorF2():
         
         The phase is truncated at the specified PN order.
         
-        If self.tidal=True, tidal terms at 5PN and 6PN are also added.
+        If ``self.tidal=True``, tidal terms at 5PN and 6PN are also added.
         """
         cfs = _phase_coefficients_()
         ## restrict to PN order
