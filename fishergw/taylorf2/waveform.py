@@ -26,33 +26,40 @@ class CompactObject():
     ----------
     mass : float
         Mass (in units of salr masses).
+    
     spin : float
         Dimensionless spin.
+    
     Lamda : float
         Tidal deformability.
+    
     kappa : float
-        Dimensionless quadrupole deformability.
-
-    Notes
-    -----
-    This class is under development. Lamda can only be specified by hand and kappa is fixed to the black hole value.
-    To do list:
-    -- support equations of state for neutron stars.
+        Dimensionless spin-induced quadrupole moment.
     """
-    def __init__(self, mass, spin, Lamda=0.0):
+    # Notes
+    # -----
+    # This class is under development. To do list:
+    # -- support equations of state for neutron stars.
+    
+    def __init__(self, mass, spin, Lamda=0.0, kappa=1.0):
         """
         Parameters
         ----------
         mass : float
             Mass (in units of salr masses).
+        
         spin : float
             Dimensionless spin.
+        
         Lamda : float, default=0.0
-            Tidal deformability.
+            Tidal deformability. Defaults to the black hole value.
+        
+        kappa : float, default=1.0
+            Dimensionless spin-induced quadrupole moment. Defaults to the black hole value.
         """
         self.mass = mass
         self.spin = spin
-        self.kappa = 1.
+        self.kappa = kappa
         self.Lamda = Lamda
 
 
@@ -291,13 +298,13 @@ class TaylorF2():
         fmax : float
             The ISCO frequency.
 
-        Notes
-        -----
-        This method is under development. The only supported option so far is the ISCO frequency of a lack hole binary.
-        To do list:
-        -- add a ``spinning`` mode to compute the ISCO frequency without neglecting the spins;
-        -- implement the contact frequency in case one or both compact objects have a tidally deformable surface.
         """
+        #Notes
+        #-----
+        #This method is under development. To do list:
+        #-- add an isco-Kerr option;
+        #-- implement the contact frequency for non-black hole objects.
+        
         if mode == 'static':
             fmax = cc/(self.M*6**1.5*np.pi)
         return fmax
@@ -401,7 +408,7 @@ class TaylorF2():
 
     def _amplitude_(self,PN=0):
         """
-        Returns a sympy expression for the amplitude in terms of the independent varialbles in self.keys.
+        Returns a sympy expression for the amplitude in terms of the independent varialbles in self.keys. 
         The amplitude is truncated at the specified PN order. 
         """
         cfs = amplitude_coefficients()

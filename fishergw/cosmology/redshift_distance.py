@@ -37,7 +37,7 @@ def redshift_from_distance(d_L):
     Parameters
     ----------
     d_L : float
-        Luminosity distance (in units of Mpc).
+        Luminosity distance (in units of Mpc). Must be less than 231518.
 
     Returns
     -------

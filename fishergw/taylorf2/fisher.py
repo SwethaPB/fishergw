@@ -59,7 +59,7 @@ class Fisher():
         integration_method : default=scipy.integrate.simps
             An integration method to compute the SNR and the FIsher matrix elements.
 
-        psd_name : str or None, optional
+        psd_name : filepath or None, optional
             The path to a text file with the tabulated PSD. If ``None``, psd defaults to 1.0. If ``detector`` is not None, psd_name is read from the detectors dictionary.
 
         detector : str or None, optional
@@ -121,7 +121,7 @@ class Fisher():
 
         Parameters
         ----------
-        psd_name : str
+        psd_name : filepath
             Path to the PSD text file.
 
         Qavg : float, default=1.0
