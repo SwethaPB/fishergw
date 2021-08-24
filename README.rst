@@ -31,7 +31,8 @@ Usage of taylorf2
     >>>
     >>> snr = fisher.snr(fmin,fmax,nbins=int(1e4))
     >>> fm = fisher.fisher_matrix(fmin,fmax,nbins=int(1e4))
-    >>> cov, sigma = fisher.covariance_matrix(fm)
+    >>> cov = fisher.covariance_matrix(fm)
+    >>> sigma = fisher.sigma1d(fm)
 
 Usage of cosmology
 ------------------

@@ -23,17 +23,13 @@ class CompactObject():
     A class to define an isolated compact object.
 
     Attributes:
-        mass : float
-            Mass (in units of salr masses).
+        mass : Mass [M_sun].    
         
-        spin : float
-            Dimensionless spin. 
-        
-        Lamda : float
-            Tidal deformability.
-        
-        kappa : float
-            Dimensionless spin-induced quadrupole moment.
+        spin : Dimensionless spin. 
+
+        Lamda : Dimensionless tidal deformability.
+    
+        kappa : Dimensionless spin-induced quadrupole moment.
     """
     # Notes
     # -----
@@ -42,18 +38,17 @@ class CompactObject():
     
     def __init__(self, mass, spin, Lamda=0.0, kappa=1.0):
         """
-        Parameters:
-            mass : float
-                Mass (in units of salr masses).
+        :param mass: Mass (in units of salr masses).
+        :type mass: float    
             
-            spin : float
-                Dimensionless spin.
+        :param spin: Dimensionless spin.
+        :type spin: float
             
-            Lamda : float, default=0.0
-                Tidal deformability. Defaults to the black hole value.
-            
-            kappa : float, default=1.0
-                Dimensionless spin-induced quadrupole moment. Defaults to the black hole value.
+        :param Lamda: Tidal deformability. Defaults to the black hole value.
+        :type Lamda: float, default=0.0
+
+        :param kappa: Dimensionless spin-induced quadrupole moment. Defaults to the black hole value.
+        :type kappa: float, default=1.0
         """
         self.mass = mass
         self.spin = spin
@@ -177,47 +172,33 @@ class TaylorF2():
     TaylorF2 frequency-domain template for the inspiral waveform from a binary coalescence.
 
     Attributes:
-        d_L : float, default=100.0
-            Luminosity distance in units of Mpc.
+        d_L : Luminosity distance [Mpc].
 
-        tc : float, default=0.0
-            Time of coalescence.
+        tc : Time of coalescence.
 
-        phic : float, default=0.0
-            Phase of coalescence.
+        phic : Phase of coalescence.
 
-        M : float
-            Total mass in the detector frame, in units of m.
+        M : Total mass in the detector frame [m].
     
-        kappa_s : float
-            Symmetrized quadrupole moment.
+        kappa_s : Symmetrized quadrupole moment.
     
-        kappa_a : float
-            Antisymmetrized quadrupole moment.
+        kappa_a : Antisymmetrized quadrupole moment.
     
-        eta : float
-            Symmetric mass ratio.
+        eta : Symmetric mass ratio.
     
-        M_c : float
-            Chirp mass in the detector frame, in units of m.
+        M_c : Chirp mass in the detector frame [m].
     
-        q : float
-            Mass ratio obj1.mass/obj2.mass.
+        q : Mass ratio ``obj1.mass/obj2.mass``.
     
-        chi_s : float
-            Symmetrized dimensionless spin.
+        chi_s : Symmetrized dimensionless spin.
     
-        chi_a : float
-            Antisymmetrized dimensionless spin.
+        chi_a : Antisymmetrized dimensionless spin.
     
-        Lamda_T : float
-            Tidal deformability of the binary, according to Eq. (14) in https://arxiv.org/abs/1410.8866.
+        Lamda_T : Dimensionless tidal deformability of the binary, according to Eq. (14) in https://arxiv.org/abs/1410.8866.
 
-        delta_Lambda : float
-            Auxiliary tidal parameter, according to Eq. (15) in https://arxiv.org/abs/1410.8866.
+        delta_Lambda : Auxiliary tidal parameter, according to Eq. (15) in https://arxiv.org/abs/1410.8866.
     
-        keys : list of str, default=['t_c','phi_c','M_c','eta','chi_s','chi_a']
-            Independent variables w.r.t. which the Fisher matrix is evaluated. If Lambda_T is not zero, ['Lamda_T','delta_Lamda'] are added to keys.
+        keys : List of the independent variables w.r.t. which the Fisher matrix is evaluated. Defaults ['t_c', 'phi_c', 'M_c', 'eta', 'chi_s', 'chi_a'] If ``Lambda_T`` is not zero, ['Lamda_T', 'delta_Lamda'] are added to keys.
 
     Notes:
         Because the TaylorF2 phase is linear in t_c and phi_c, the actual values of t_c and phi_c are irrelevant to the computation of the Fisher matrix and can be left to their default.
@@ -229,24 +210,24 @@ class TaylorF2():
 
     def __init__(self,obj1,obj2,d_L=100.0,t_c=0.0,phi_c=0.0,redshift=False):
         """
-        Parameters:
-            obj1 : CompactObject instance
-                Primary compact object in the binary.
+        
+        :param obj1: Primary compact object in the binary.
+        :type obj1: CompactObject
 
-            obj2 : CompactObject instance
-                Secondary compact object in the binary.
+        :param obj2: Secondary compact object in the binary.
+        :type obj2: CompactObject
 
-            d_L : float, default=100.0
-                Luminosity distance in units of Mpc.
+        :param d_L: Luminosity distance [Mpc].
+        :type d_L: float, default=100.0
 
-            tc : float, default=0.0
-                Time of coalescence.
+        :param t_c: Time of coalescence.
+        :type t_c: float, default=0.0
 
-            phic : float, default=0.0
-                Phase of coalescence.
+        :param phi_c: Phase of coalescence.
+        :type phi_c: float, default=0.0
 
-            redshift : bool, default=False
-                If ``True``, the masses are redshifted, otherwise the redshift is neglected.
+        :param redshift: If ``True``, the masses are redshifted, otherwise the redshift is neglected.
+        :type redshift: bool, default=False
         """
         if redshift:
             self.redshift = redshift_from_distance(d_L)
@@ -282,16 +263,13 @@ class TaylorF2():
 
     def isco(self,mode='static'):
         """
-        Compute the ISCO frequency of the system. It is the recommended maximum frequency when computing the SNR and the Fisher matrix.
+        Returns the ISCO frequency of the system.
 
-        Parameters:
-            mode : str, default='static'
-                If ``static``, neglects the contribution of the indivudal spins. Currently, this is the only supported option.
+        
+        :param mode: If ``static``, neglects the contribution of the indivudal spins. Currently, this is the only supported option.
+        :type mode: str, default='static'
 
-        Returns:
-            fmax : float
-                The ISCO frequency.
-
+        :rtype: float
         """
         #Notes
         #-----
@@ -307,28 +285,23 @@ class TaylorF2():
         """
         Returns the starting frequency given the osbervational time, as per Eq. (2.15) in https://arxiv.org/abs/gr-qc/0411129v2.
         
-        Parameters:
-            obs_time : float, default=1.0
-                The observational time (in units of yr).
+        :param  obs_time: The observational time [yr].
+        :type obs_time: float, default=1.0
 
-        Returns:
-            fmin : float
-                The starting frequency.
+        
+        :rtype: float
         """
         fmin = 4.149e-5*(obs_time)**(-3/8)*(self.M_c*1e-6)**(-5/8)
         return fmin
 
     def __call__(self,f):
         """
-        Value of the strain at a given frequency.
+        Returns the value of the strain at a given frequency.
 
-        Parameters:
-            f : float
-                Frequency (in units of Hz).
+        :param f: Frequency [Hz].
+        :type f: float
 
-        Returns:
-            _ : complex
-                Value of the strain at f.
+        :rtype: complex
         """
         if not self._eval_:
             ## update eval

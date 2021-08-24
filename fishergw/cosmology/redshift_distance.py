@@ -7,17 +7,14 @@ cc = speed_of_light*1e-3 # Km/s
 
 def distance_from_redshift(z):
     """
-    Returns the luminosity distance d_L from the redshift z.
+    Returns the luminosity distance [Mpc] from the redshift.
    
     Uses the Planck 2018 cosmological parameters from Tab. 1 in https://arxiv.org/abs/1807.06209.
 
-    Parameters:
-        z : float
-            Redshift.
+    :param z: Redshift.
+    :type z: float
 
-    Returns:
-        d_L : float
-            Luminosity distance (in units of Mpc).
+    :rtype: float
     """
     integrand = lambda x: 1/np.sqrt(omega_matter*(1+x)**3+omega_lamda)
     dz = 1e-3
@@ -28,17 +25,14 @@ def distance_from_redshift(z):
 
 def redshift_from_distance(d_L):
     """
-    Returns the redshift z from the luminosity distance d_L.
+    Returns the redshift from the luminosity distance [Mpc].
 
     Uses the Planck 2018 cosmological parameters from Tab. 1 in https://arxiv.org/abs/1807.06209.
 
-    Parameters:
-        d_L : float
-            Luminosity distance (in units of Mpc). Must be less than 231518.
-
-    Returns:
-        z : float
-            Redshift.
+    :param d_L: Luminosity distance [Mpc]. Must be less than 231518.
+    :type d_L: float
+    
+    :rtype: float
 
     Notes:
         A solution for z is searched in the interval [0,20]. This restricts the allowed values of d_L in [0,231518] Mpc.

@@ -11,36 +11,28 @@ class Fisher():
     An object to load the power spectral density (PSD) and compute the signal-to-noise ratio (SNR) and the Fisher matrix elements of a gravitational wave signal. The SNR and the Fisher matrix are averaged over orientation and inclination angles.
     
     Attributes:
-        signal : TaylorF2 instance
-            The TaylorF2 instance of the binary waveform.
+        signal : Waveform object.
 
-        integration_method : default=scipy.integrate.simps
-            An instance of an integration method from the scipy.integrate module.
+        integration_method : An integration method from the scipy.integrate module.
 
-        psd : scipy.interpolate.interp1d instance
-            Interpolant of the PSD.
+        psd : Interpolant of the PSD.
 
-        fmin : float
-            If psd_name is provided, fmin is the corresponding minimum frequency. Otherwise, fmin=None.
+        fmin : If ``psd_name`` is provided, ``fmin`` is the corresponding minimum frequency. Otherwise, ``fmin`` = ``None``.
 
-        fmax : float
-            If psd_name is provided, fmax is the corresponding maximum frequency. Otherwise, fmax=None.
+        fmax : If ``psd_name`` is provided, ``fmax`` is the corresponding maximum frequency. Otherwise, ``fmax`` = ``None``.
 
-        Qavg : float
-            Angle-averaging factor. When the load_psd method is called, the PSD is divided by Qavg**2 to ensure that the SNR and the Fisher matrix elements are angle-averaged.
+        Qavg : Angle-averaging factor. When the ``self.load_psd`` is called, the PSD is divided by ``Qavg`` **2 to ensure that the SNR and the Fisher matrix elements are angle-averaged.
     
-        keys : list of str
-            Independent variables w.r.t. which the Fisher matrix is evaluated.
+        keys : List of the independent variables w.r.t. which the Fisher matrix is evaluated.
 
-        _detectors_ : dict
-            Detector names mapped to their psd_name and Qavg factor. Available detectors are Advanced Ligo ('aLigo'), Cosmic Explorer ('CE'), Einstein Telescope ('ET') and LISA ('lisa').
+        _detectors_ : Dictionary mapping default detector names to their ``psd_name`` and ``Qavg`` factor. Default detectors are Advanced Ligo ('aLigo'), Cosmic Explorer ('CE'), Einstein Telescope ('ET') and LISA ('lisa').
         The following conventions hold for Qavg:
         
-            'aLigo' and 'CE' are mapped to the factor Qavg=2/5 for a two-armed 90-degrees detector (see, e.g., Eq. (7.177) in [1]);
+            'aLigo' and 'CE' are mapped to the factor ``Qavg`` =2/5 for a two-armed 90-degrees detector (see, e.g., Eq. (7.177) in [1]);
         
-            'ET' is mapped to Qavg=2/5*sqrt(3/2), the additional factor sqrt(3/2) coming from the fact that ET is a three-armed 60-degrees detector with two channels (see Eq. (4) in https://arxiv.org/abs/1012.0908);
+            'ET' is mapped to ``Qavg`` =2/5*sqrt(3/2), the additional factor sqrt(3/2) coming from the fact that ET is a three-armed 60-degrees detector with two channels (see Eq. (4) in https://arxiv.org/abs/1012.0908);
         
-            'lisa' is mapped to Qavg=2/sqrt(5). This only accounts for averaging over the inclination angle, because the LISA sensitivity curve is already averaged over orientation and detector channels. (see Eq.s (2,8-9) in https://arxiv.org/abs/1803.01944).
+            'lisa' is mapped to ``Qavg`` =2/sqrt(5). This only accounts for averaging over the inclination angle, because the LISA sensitivity curve is already averaged over orientation and detector channels. (see Eq.s (2,8-9) in https://arxiv.org/abs/1803.01944).
 
         [1] Maggiore, Michele. Gravitational waves: Volume 1: Theory and experiments. Vol. 1. Oxford university press, 2008.
     """
@@ -53,21 +45,20 @@ class Fisher():
     def __init__(self,signal,integration_method=simps,\
             psd_name=None,detector=None,keys=None):
         """
-        Parameters:
-            signal : TaylorF2 instance
-                The TaylorF2 instance of the binary waveform.
+        :param signal: The waveform object.
+        :type signal: TaylorF2
 
-            integration_method : default=scipy.integrate.simps
-                 An integration method to compute the SNR and the FIsher matrix elements.
+        :param integration_method: The integration method to compute the SNR and the Gisher matrix elements.
+        :type integration_method: ``scipy.integrate`` object, default= ``scipy.integrate.simps``
 
-            psd_name : filepath or None, optional
-                 The path to a text file with the tabulated PSD. If ``None``, psd defaults to 1.0. If ``detector`` is not None, psd_name is read from the detectors dictionary.
+        :param psd_name: The path to a text file with the tabulated PSD. If ``None``, psd defaults to 1.0. If ``detector`` is not ``None``, ``psd_name`` is read from the ``_detectors_`` dictionary
+        :type psd_name: filepath or None, optional
+            
+        :param detector: If not ``None``, must be one of ['aLigo', 'CE', 'ET', 'lisa'].
+        :type detector: str or None, optional
 
-            detector : str or None, optional
-                If not ``None``, a str in ['aLigo','CE','ET','lisa'].
-
-            keys : list of str or None
-                Independent variables w.r.t. which the Fisher matrix is evaluated. If ``None``, defaults to self.signal.keys.
+        :param keys: Independent variables w.r.t. which the Fisher matrix is evaluated. If ``None``, defaults to ``self.signal.keys``.
+        :type keys: list of str or None
         """
         self.signal = signal
         if not keys:
@@ -76,8 +67,8 @@ class Fisher():
             self.keys = keys
         self.integration_method = simps
         if detector:
-            psd_name, self.Qavg = self._detectors_[detector]
-            self.psd, self.fmin, self.fmax = self.load_psd(psd_name,self.Qavg)
+            psd_name, Qavg = self._detectors_[detector]
+            self.load_psd(psd_name,Qavg)
         elif psd:
             self.Qavg = 1.0
             self.psd, self.fmin, self.fmax = self.load_psd(psd_name)
@@ -86,23 +77,20 @@ class Fisher():
             self.psd = lambda x: 1.0
             self.fmin, self.fmax = None, None
         
-    def snr(self,fmin=None,fmax=None,nbins=1e5):
+    def snr(self,fmin=None,fmax=None,nbins=int(1e5)):
         """
-        Computes the SNR of the signal.
+        Returns the SNR of the signal.
 
-        Parameters:
-            fmin : float or None, optional
-                Minimum frequency. If ``None``, defaults to the minimum frequency in the PSD file.
-        
-            fmax : float or None, optional
-                Maximum frequency. If ``None``, defaults to the maximum frequency in the PSD file.
+        :param fmin: Minimum frequency. If ``None``, defaults to the minimum frequency set by the provided PSD file.
+        :type fmax: float or None, optional
 
-            nbins : int, default=1e5
-                Binning of the integration method.
+        :param fmax: Maximum frequency. If ``None``, defaults to the maximum frequency set by the provided PSD file.
+        :type fmax: float or None, optional
 
-        Returns:
-            _ : float
-                Signal-to-noise ratio.
+        :param nbins: Binning of the integration domain.
+        :type nbins: int, default=1e5
+
+        :rtype: float
         """
         if not fmin:
             fmin = self.fmin
@@ -116,48 +104,38 @@ class Fisher():
     
     def load_psd(self,psd_name,Qavg=1.0):
         """
-        Loads the PSD from a text file.
+        Loads the PSD from a text file. Initializes the attributes ``psd``, ``fmin``, ``fmax`` and ``Qavg``.
 
-        Parameters:
-            psd_name : filepath
-                Path to the PSD text file.
+        :param psd_name: Path to the PSD text file.
+        :type psd_name: filepath
 
-            Qavg : float, default=1.0
-                Value of the angle-averaging factor. It ensures that the SNR and the Fisher matrix elements are averaged over orientation and inclination angles.
+        :param Qavg: Value of the angle-averaging factor. See the description in the Fisher attributes.
+        :type Qavg: float, default=1.0
 
-        Returns:
-            psd : scipy.interpolate.interp1d instance
-                Interpolant of the PSD.
-
-            fmin : float
-                Minimum frequency in the psd_name file.
-
-            fmax : float
-                Maximum frequency in the psd_name file.
+        :returns: ``self``
+        :rtype: Fisher
         """
         s = np.genfromtxt(psd_name).T
-        fmin = s[0].min()
-        fmax = s[0].max()
-        psd = interp1d(s[0],s[1]/Qavg**2)
-        return psd, fmin, fmax
+        self.Qavg = Qavg
+        self.fmin = s[0].min()
+        self.fmax = s[0].max()
+        self.psd = interp1d(s[0],s[1]/Qavg**2)
+        return self
     
-    def fisher_matrix(self,fmin=None,fmax=None,nbins=1e5):
+    def fisher_matrix(self,fmin=None,fmax=None,nbins=int(1e5)):
         """
-        Computes the Fisher matrix.
+        Returns the Fisher matrix.
+        
+        :param fmin: Minimum frequency. If ``None``, defaults to the minimum frequency set by the provided PSD file.
+        :type fmax: float or None, optional
 
-        Parameters:
-            fmin : float or None, optional
-                Minimum frequency. If ``None``, defaults to the minimum frequency in the PSD file.
+        :param fmax: Maximum frequency. If ``None``, defaults to the maximum frequency set by the provided PSD file.
+        :type fmax: float or None, optional
 
-            fmax : float or None, optional
-                Maximum frequency. If ``None``, defaults to the maximum frequency in the PSD file.
+        :param nbins: Binning of the integration domain.
+        :type nbins: int, default=1e5
 
-            nbins : int, default=1e5
-                Binning of the integration method.
-
-        Returns:
-            _ : array, shape [len(keys),len(keys)]
-                The Fisher matrix.
+        :rtype: ``numpy.array``, shape [len(``keys``),len(``keys``)]
         """
         Nabla = self.signal._evaluate_Nabla_(keys=self.keys)
         dim = len(self.keys)
@@ -177,25 +155,35 @@ class Fisher():
     
     def covariance_matrix(self,fm):
         """
-        Computes the covariance matrix and the 1-dimensional standard deviations.
+        Returns the covariance matrix.
 
-        Parameters:
-            fm : array, shape [len(keys),len(keys)]
-                The Fisher matrix.
+        :param fm: The \Fisher matrix.
+        :type fm: ``numpy.array``, shape [len(``keys``),len(``keys``)]
 
-        Returns:
-            cov : array, shape [len(keys),len(keys)]
-                The covariance matrix.
-
-            sigma : dict
-                Keys mapped to the standard deviations.
+        :rtype: ``numpy.array``, shape [len(``keys``),len(``keys``)]
         """
         inverse_fm = np.matrix(fm).I
         cov = np.zeros_like(inverse_fm)
-        dim = len(cov)
+        dim = len(fm)
         for i in range(dim):
             for j in range(i,dim):
                 cov[i,j] = inverse_fm[i,j]/np.sqrt(inverse_fm[i,i]*inverse_fm[j,j])
                 cov[j,i] = cov[i,j]
         sigma = {self.keys[i]:np.sqrt(inverse_fm[i,i]) for i in range(dim)}
-        return cov, sigma
+        return cov
+    
+    def sigma1d(self,fm):
+        """
+        Returns the standard deviations of the 1D marginalized posteriors.
+
+        :param fm: The \Fisher matrix.
+        :type fm: ``numpy.array``, shape [len(``keys``),len(``keys``)]
+
+        :returns: Dictionary mapping ``keys`` to the corresponding standard deviations.
+        :rtype: dict
+        """
+        inverse_fm = np.matrix(fm).I
+        dim = len(fm)
+        sigma = {self.keys[i]:np.sqrt(inverse_fm[i,i]) for i in range(dim)}
+        return sigma
+
