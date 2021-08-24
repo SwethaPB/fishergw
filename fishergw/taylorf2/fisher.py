@@ -13,7 +13,7 @@ class Fisher():
     Attributes:
         signal : Waveform object.
 
-        integration_method : An integration method from the scipy.integrate module.
+        integration_method : An integration method from the ``scipy.integrate`` module.
 
         psd : Interpolant of the PSD.
 
@@ -21,7 +21,7 @@ class Fisher():
 
         fmax : If ``psd_name`` is provided, ``fmax`` is the corresponding maximum frequency. Otherwise, ``fmax`` = ``None``.
 
-        Qavg : Angle-averaging factor. When the ``self.load_psd`` is called, the PSD is divided by ``Qavg`` **2 to ensure that the SNR and the Fisher matrix elements are angle-averaged.
+        Qavg : Angle-averaging factor. When the ``self.load_psd`` is called, the PSD is divided by ``Qavg`` ^2 to ensure that the SNR and the Fisher matrix elements are angle-averaged.
     
         keys : List of the independent variables w.r.t. which the Fisher matrix is evaluated.
 
@@ -32,7 +32,7 @@ class Fisher():
         
             'ET' is mapped to ``Qavg`` =2/5*sqrt(3/2), the additional factor sqrt(3/2) coming from the fact that ET is a three-armed 60-degrees detector with two channels (see Eq. (4) in https://arxiv.org/abs/1012.0908);
         
-            'lisa' is mapped to ``Qavg`` =2/sqrt(5). This only accounts for averaging over the inclination angle, because the LISA sensitivity curve is already averaged over orientation and detector channels. (see Eq.s (2,8-9) in https://arxiv.org/abs/1803.01944).
+            'lisa' is mapped to ``Qavg`` =2/sqrt(5). This only accounts for averaging over the inclination angle, because the LISA sensitivity curve is already averaged over orientation and detector channels (see Eq.s (2,8-9) in https://arxiv.org/abs/1803.01944).
 
         [1] Maggiore, Michele. Gravitational waves: Volume 1: Theory and experiments. Vol. 1. Oxford university press, 2008.
     """
