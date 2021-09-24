@@ -2,6 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 from scipy.integrate import simps
 from os.path import realpath, dirname
+#import warnings
 
 full_path = realpath(__file__)
 dir_path = dirname(full_path)
@@ -44,7 +45,7 @@ References:
                  'lisa':(dir_path+'/../detector/lisa_psd.dat',2/5*np.sqrt(5))}
     
     def __init__(self,signal,integration_method=simps,\
-            psd_name=None,detector=None,keys=None):
+            psd_name=None,detector=None,keys=None,log_scale_keys=[]):
         """
         :param signal: A :class:`TaylorF2` waveform instance
         :type signal: :class:`TaylorF2`
@@ -60,12 +61,16 @@ References:
 
         :param keys: Independent variables w.r.t. which the Fisher matrix is evaluated. If ``None``, defaults to ``self.signal.keys``.
         :type keys: list of str or None
+        
+        :param log_scale_keys: Subset of ``keys`` to be converted in log scale when computing the Fisher. Defaults to the empty list.
+        :type log_scale_keys: list
         """
         self.signal = signal
         if not keys:
             self.keys = self.signal.keys
         else:
             self.keys = keys
+        self.log_scale_keys = log_scale_keys
         self.integration_method = simps
         if detector:
             psd_name, Qavg = self._detectors_[detector]
@@ -123,9 +128,9 @@ References:
         self.psd = interp1d(s[0],s[1]/Qavg**2)
         return self
     
-    def fisher_matrix(self,fmin=None,fmax=None,nbins=int(1e5)):
+    def fisher_matrix(self,fmin=None,fmax=None,nbins=int(1e5),priors=None):
         """
-        Returns the Fisher matrix.
+        Returns the Fisher matrix. Gaussian priors can be specified based on https://arxiv.org/abs/gr-qc/9502040.
         
         :param fmin: Minimum frequency. If ``None``, defaults to the minimum frequency set by the provided PSD file.
         :type fmax: float or None, optional
@@ -135,10 +140,13 @@ References:
 
         :param nbins: Binning of the integration domain.
         :type nbins: int, default=1e5
+        
+        :param priors: Dictionary mapping a key with the standard deviation of its Gaussian prior. Defaults to None.
+        :type priors: dict or None
 
         :rtype: :class:`numpy.array`, shape ``(len(keys),len(keys))``
         """
-        Nabla = self.signal._evaluate_Nabla_(keys=self.keys)
+        Nabla = self.signal._evaluate_Nabla_(keys=self.keys,log_scale_keys=self.log_scale_keys)
         dim = len(self.keys)
         if not fmin:
             fmin = self.fmin
@@ -152,9 +160,42 @@ References:
                 y = 4*np.real(derivatives[i](f)*np.conj(derivatives[j](f)))/self.psd(f)
                 fm[i,j] = self.integration_method(y,f)
                 fm[j,i] = fm[i,j]
+        if priors:
+            for k,v in priors.items():
+                if k in self.keys:
+                    i = self.keys.index(k)
+                    fm[i,i] += 1/v**2
+                else:
+                    warning_message = 'Prior specification on %s is invalid and will be ignored.\nValid keys :'%(k)+str(self.keys)+'\n'
+                    print(warning_message)
+                    #warnings.warn(warning_message)
         return fm
     
-    def covariance_matrix(self,fm):
+    def _invert_matrix_(self,fm,tol=1e-6):
+        """
+        Returns the inverse of the \Fisher matrix. A singular value decomposition is applied and directions with singular values smaller than ``tol`` are discarded.
+
+        :param fm: The \Fisher matrix.
+        :type fm: :class:`numpy.array`, shape ``(len(keys),len(keys))``
+
+        :param tol: Directions with singular values smaller than ``tol`` are discarded when inverting the matrix. Default: 1e-6.
+        :type tol: float
+
+        :rtype: :class:`numpy.array`, shape ``(len(keys),len(keys))``        
+        """
+        dim = len(fm)
+        diag = np.sqrt(fm[range(dim),range(dim)])
+        norm = np.outer(diag,diag)
+        fm_normalized = fm/norm
+        u,s,vh = np.linalg.svd(fm_normalized)
+        idx = sum(s<tol)
+        if idx:
+            s[-idx:] = np.inf
+        inverse_fm_normalized = np.dot(vh.T,np.dot(np.diag(1/s),u.T))
+        inverse_fm = inverse_fm_normalized/norm
+        return inverse_fm
+    
+    def covariance_matrix(self,fm,svd=True):
         """
         Returns the covariance matrix.
 
@@ -163,17 +204,20 @@ References:
 
         :rtype: :class:`numpy.array`, shape ``(len(keys),len(keys))``
         """
-        inverse_fm = np.matrix(fm).I
+        if svd:
+            inverse_fm = self._invert_matrix_(fm)
+        else:
+            inverse_fm = np.matrix(fm).I
         cov = np.zeros_like(inverse_fm)
         dim = len(fm)
         for i in range(dim):
             for j in range(i,dim):
                 cov[i,j] = inverse_fm[i,j]/np.sqrt(inverse_fm[i,i]*inverse_fm[j,j])
                 cov[j,i] = cov[i,j]
-        sigma = {self.keys[i]:np.sqrt(inverse_fm[i,i]) for i in range(dim)}
+        #sigma = {self.keys[i]:np.sqrt(inverse_fm[i,i]) for i in range(dim)}
         return cov
     
-    def sigma1d(self,fm):
+    def sigma1d(self,fm,svd=True):
         """
         Returns the standard deviations of the 1D marginalized posteriors.
 
@@ -183,7 +227,10 @@ References:
         :returns: Dictionary mapping ``keys`` to the corresponding standard deviations.
         :rtype: dict
         """
-        inverse_fm = np.matrix(fm).I
+        if svd:
+            inverse_fm = self._invert_matrix_(fm)
+        else:
+            inverse_fm = np.matrix(fm).I
         dim = len(fm)
         sigma = {self.keys[i]:np.sqrt(inverse_fm[i,i]) for i in range(dim)}
         return sigma

@@ -8,7 +8,7 @@ from ..constants import speed_of_light, solar_mass, G, Mpc
 
 cc = speed_of_light
 msun = solar_mass
-## Schwarzschild radius of the Sun
+## solar mass in m
 rsun = msun*G/cc**2 ## m
 
 ## define sympy symbols
@@ -122,7 +122,7 @@ def _phase_coefficients_():
             + chi_s*(-Rational(732985,2268) + 24260*eta/81 + 340*eta**2/9)
 
     xi = sp.pi*( 2270*chi_a*delta/3 + chi_s*(Rational(2270,3) - 520*eta) )\
-         + chi_s**2*( -Rational(1344475,2016) + 829705*eta/504\
+        + chi_s**2*( -Rational(1344475,2016) + 829705*eta/504\
         + 3415*eta**2/9\
         + delta*kappa_a*(Rational(26015,28) - 1495*eta/6)\
         + kappa_s*(Rational(26015,28) - 44255*eta/21 - 240*eta**2) )\
@@ -240,27 +240,20 @@ class TaylorF2():
         else:
             self.redshift = 0.0
         self.keys = ['t_c','phi_c','M_c','eta','chi_s','chi_a']
-        self.__dict__['t_c'] = t_c
-        self.__dict__['phi_c'] = phi_c
-        self.__dict__['d_L'] = d_L*Mpc
-        self.__dict__['M'] = (obj1.mass + obj2.mass)*rsun*(1+self.redshift)
-        self.__dict__['kappa_s'] = 0.5*(obj1.kappa + obj2.kappa)
-        self.__dict__['kappa_a'] = 0.5*(obj1.kappa - obj2.kappa)
-        self.__dict__['eta'] = obj1.mass*obj2.mass/(obj1.mass + obj2.mass)**2
-        #self.__dict__['mu'] = self.__dict__['eta']*self.__dict__['M']
-        self.__dict__['M_c'] = self.__dict__['M']*self.__dict__['eta']**0.6*(1+self.redshift)
-        #self.__dict__['delta'] = (obj1.mass - obj2.mass)/(obj1.mass + obj2.mass)
-        self.__dict__['q'] = obj1.mass / obj2.mass
-        self.__dict__['chi_s'] = 0.5*(obj1.spin +  obj2.spin)
-        self.__dict__['chi_a'] = 0.5*(obj1.spin - obj2.spin)
-        self.__dict__['Lamda_T'] = 16/13*((1+12/self.__dict__['q'])*(obj1.mass**5)*obj1.Lamda +\
-                (1+12*self.__dict__['q'])*(obj2.mass**5)*obj2.Lamda)/(obj1.mass+obj2.mass)**5
-        self.__dict__['delta_Lamda'] = 16/4361*( (-919+3179*(1+self.__dict__['q'])/self.__dict__['q']-\
-                2286*self.__dict__['q']/(1+self.__dict__['q'])+\
-                260*(self.__dict__['q']/(1+self.__dict__['q']))**2)*(obj1.mass**5)*obj1.Lamda +\
-                (-919+3179*(1+self.__dict__['q'])-2286/(1+self.__dict__['q'])+\
-                260/(1+self.__dict__['q'])**2)*(obj2.mass**5)*obj2.Lamda )/(obj1.mass+obj2.mass)**5
-        if self.__dict__['Lamda_T']:
+        self.t_c = t_c
+        self.phi_c = phi_c
+        self.d_L = d_L*Mpc
+        self.M = (obj1.mass + obj2.mass)*rsun*(1+self.redshift)
+        self.kappa_s = 0.5*(obj1.kappa + obj2.kappa)
+        self.kappa_a = 0.5*(obj1.kappa - obj2.kappa)
+        self.eta = obj1.mass*obj2.mass/(obj1.mass + obj2.mass)**2
+        self.M_c = self.M*self.eta**0.6*(1+self.redshift)
+        self.q = obj1.mass / obj2.mass
+        self.chi_s = 0.5*(obj1.spin +  obj2.spin)
+        self.chi_a = 0.5*(obj1.spin - obj2.spin)
+        self.Lamda_T = 8/13*((1+7*self.eta-31*self.eta**2)*(obj1.Lamda+obj2.Lamda)+np.sqrt(1-4*self.eta)*(1+9*self.eta-11*self.eta**2)*(obj1.Lamda-obj2.Lamda))
+        self.delta_Lamda = 0.5*(np.sqrt(1-4*self.eta)*(1-13272/1319*self.eta+8944/1319*self.eta**2)*(obj1.Lamda+obj2.Lamda)+(1-15910/1319*self.eta+32850/1319*self.eta**2+3380/1319*self.eta**3)*(obj1.Lamda-obj2.Lamda))
+        if self.Lamda_T:
             self._tidal_ = True
             self.keys += ['Lamda_T','delta_Lamda']
         else:
@@ -323,12 +316,15 @@ class TaylorF2():
         phase = self.phase_eval(f)
         return amplitude*np.exp(1j*phase)
 
-    def _evaluate_Nabla_(self,keys=None):
+    def _evaluate_Nabla_(self,keys=None,log_scale_keys=[]):
         """
-        Computes the derivatives w.r.t. the arguments in ``keys``.
+        Returns the gradient vector w.r.t. the arguments in ``keys``.
 
-        :param keys: Independent variables w.r.t. which the Fisher matrix is evaluated. If ``None``, the default ``self.keys`` is assumed.
+        :param keys: Variables w.r.t. which the gradient vector is evaluated. If ``None`` (default), it is set to ``self.keys``.
         :type keys: list of str or None
+        
+        :param log_scale_keys: Subset of ``keys`` w.r.t. which the derivatives are evaluated in log scale.
+        :type log_scale_keys: list
         
         :returns: ``keys`` mapped to their derivative estimators.
         
@@ -338,10 +334,10 @@ class TaylorF2():
         if not keys:
             keys = self.keys
         for argument in keys:
-            Nabla[argument] = self._diff_(argument)
+            Nabla[argument] = self._diff_(argument,log_scale_keys)
         return Nabla
 
-    def _diff_(self,argument):
+    def _diff_(self,argument,log_scale_keys=[]):
         """
         Derivative of the strain w.r.t. to the argument.
 
@@ -361,8 +357,14 @@ class TaylorF2():
         params = {k:self.__dict__[k] for k in keys}
         ## phase
         ph_diff = self._phase_().subs(params)
-        ph_diff = sp.diff(ph_diff,argument)
-        ph_diff = ph_diff.subs({argument:self.__dict__[argument]})
+        ## change some variable in log scale
+        if argument in log_scale_keys:
+            ph_diff = ph_diff.subs({argument:'exp(%s)'%argument})
+            ph_diff = sp.diff(ph_diff,argument)
+            ph_diff = ph_diff.subs({argument:np.log(self.__dict__[argument])})
+        else:
+            ph_diff = sp.diff(ph_diff,argument)
+            ph_diff = ph_diff.subs({argument:self.__dict__[argument]})            
         ph_diff = sp.lambdify('f',ph_diff,modules='numpy')
         ##
         out = lambda f: self(f)*ph_diff(f)
@@ -411,7 +413,10 @@ class TaylorF2():
         ## add normalization
         out *= 3/(128*eta*v**5)
         ## add constant and linear terms in the phase
+        ## measure time in seconds
         out += -sp.pi/4 + 2*c*tc/M*v**3 - phic
+        ## measure time in Km
+        #out += -sp.pi/4 + 2*c*tc*(1000.0/c)/M*v**3 - phic
         out = out.subs('v', '(pi*M*f/c)**Rational(1,3)')
         ## change variables
         out = out.subs([('M','M_c/(eta)**Rational(3,5)'),('delta','sqrt(1-4*eta)')])
