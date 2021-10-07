@@ -247,7 +247,7 @@ class TaylorF2():
         self.kappa_s = 0.5*(obj1.kappa + obj2.kappa)
         self.kappa_a = 0.5*(obj1.kappa - obj2.kappa)
         self.eta = obj1.mass*obj2.mass/(obj1.mass + obj2.mass)**2
-        self.M_c = self.M*self.eta**0.6*(1+self.redshift)
+        self.M_c = self.M*self.eta**0.6
         self.q = obj1.mass / obj2.mass
         self.chi_s = 0.5*(obj1.spin +  obj2.spin)
         self.chi_a = 0.5*(obj1.spin - obj2.spin)
@@ -409,7 +409,8 @@ class TaylorF2():
             out += cfs[i]*v**i
         ## add tidal terms
         if self._tidal_ == True:
-            out += -Rational(39,2)*Lamda_T*v**10 -Rational(3115,64)*Lamda_T*v**12 + Rational(6595,364)*delta*delta_Lamda*v**12
+            out += -Rational(39,2)*Lamda_T*v**10 -Rational(3115,64)*Lamda_T*v**12\
+            + Rational(6595,364)*delta*delta_Lamda*v**12
         ## add normalization
         out *= 3/(128*eta*v**5)
         ## add constant and linear terms in the phase

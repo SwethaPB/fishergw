@@ -5,7 +5,7 @@ solar_mass = 1.98855e+30 #Kg
 ## Newton's constant
 G = 6.6743e-11 ## m^3/kg/s from <https://physics.nist.gov/cuu/Constants/index.html> 
 ## Megaparsec
-Mpc = 3.1e22 ## m
+Mpc = 3.0857e22 ## m
 
 ## comsological parameteres from
 ## Planck 2018 results VI, Tab.1

@@ -75,9 +75,9 @@ References:
         if detector:
             psd_name, Qavg = self._detectors_[detector]
             self.load_psd(psd_name,Qavg)
-        elif psd:
+        elif psd_name:
             self.Qavg = 1.0
-            self.psd, self.fmin, self.fmax = self.load_psd(psd_name)
+            self.load_psd(psd_name)
         else:
             self.Qavg = 1.0
             self.psd = lambda x: 1.0
@@ -208,14 +208,29 @@ References:
             inverse_fm = self._invert_matrix_(fm)
         else:
             inverse_fm = np.matrix(fm).I
-        cov = np.zeros_like(inverse_fm)
+        return inverse_fm
+    
+    def correlation_matrix(self,fm,svd=True):
+        """
+        Returns the covariance matrix.
+
+        :param fm: The \Fisher matrix.
+        :type fm: :class:`numpy.array`, shape ``(len(keys),len(keys))``
+
+        :rtype: :class:`numpy.array`, shape ``(len(keys),len(keys))``
+        """
+        if svd:
+            inverse_fm = self._invert_matrix_(fm)
+        else:
+            inverse_fm = np.matrix(fm).I
+        corr = np.zeros_like(inverse_fm)
         dim = len(fm)
         for i in range(dim):
             for j in range(i,dim):
-                cov[i,j] = inverse_fm[i,j]/np.sqrt(inverse_fm[i,i]*inverse_fm[j,j])
-                cov[j,i] = cov[i,j]
+                corr[i,j] = inverse_fm[i,j]/np.sqrt(inverse_fm[i,i]*inverse_fm[j,j])
+                corr[j,i] = corr[i,j]
         #sigma = {self.keys[i]:np.sqrt(inverse_fm[i,i]) for i in range(dim)}
-        return cov
+        return corr
     
     def sigma1d(self,fm,svd=True):
         """
